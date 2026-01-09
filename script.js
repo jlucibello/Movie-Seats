@@ -1,0 +1,551 @@
+// CSV data - seat visits
+const csvData = `Location,Theater,Seat Row,Seat Number,Movie,Premium Format,Notes
+Lincoln Sq,Theater 1,F,7,Hamnet,Dolby,
+Lincoln Sq,Theater 1,J,19,Challengers,Dolby,
+Lincoln Sq,Theater 1,J,20,Challengers,Dolby,
+Lincoln Sq,Theater 2,D,10,The Brutalist,70MM,
+Lincoln Sq,Theater 2,E,8,Lurker,Standard,Q&A
+Lincoln Sq,Theater 2,L,11,The Smashing Machine,Standard,
+Lincoln Sq,Theater 2,N,10,Marty Supreme,70MM,
+Lincoln Sq,Theater 2,N,11,Marty Supreme,70MM,
+Lincoln Sq,Theater 3,E,10,Friendship,Standard,
+Lincoln Sq,Theater 4,K,16,Better Man,Standard,Q&A
+Lincoln Sq,Theater 6,D,6,Nickel Boys,Standard,
+Lincoln Sq,Theater 8,E,6,Freakier Friday,Standard,
+Lincoln Sq,Theater 8,E,7,Freakier Friday,Standard,
+Lincoln Sq,Theater 9,E,8,I'm Still Here,Standard,
+Lincoln Sq,Theater 10,H,9,Anyone But You,Standard,
+Lincoln Sq,Theater 10,H,10,Anyone But You,Standard,
+Lincoln Sq,Theater 11,H,5,Poor Things,Standard,
+Lincoln Sq,Theater 12,C,9,Is This Thing On?,Standard,
+Lincoln Sq,Theater 13,A,22,Interstellar,IMAX 70MM,
+Lincoln Sq,Theater 13,B,7,The Running Man,IMAX,Q&A
+Lincoln Sq,Theater 13,E,26,Oppenheimer,IMAX 70MM,
+Lincoln Sq,Theater 13,E,26,Thunderbolts*,IMAX,
+Lincoln Sq,Theater 13,E,29,Avatar: Fire and Ash,IMAX,
+Lincoln Sq,Theater 13,F,20,One Battle After Another,IMAX 70MM,
+Lincoln Sq,Theater 13,G,32,Superman,IMAX,
+Lincoln Sq,Theater 13,H,4,Dune: Part Two,IMAX 70MM,
+Lincoln Sq,Theater 13,H,5,Dune: Part Two,IMAX 70MM,
+Lincoln Sq,Theater 13,H,16,Alien: Romulus,IMAX,
+Lincoln Sq,Theater 13,H,26,Sinners,IMAX 70MM,
+Lincoln Sq,Theater 13,H,27,Sinners,IMAX 70MM,Rewatch
+Lincoln Sq,Theater 13,H,32,Fantastic Four: First Steps,IMAX,
+Lincoln Sq,Theater 13,J,10,Talk to Me,IMAX,
+Lincoln Sq,Theater 13,J,13,Megalopolis,IMAX,
+Lincoln Sq,Theater 13,K,6,Oppenheimer,IMAX 70MM,
+Lincoln Sq,Theater 13,K,32,Apollo 13,IMAX,
+Lincoln Sq,Theater 13,L,19,Inside Out 2,IMAX,
+Lincoln Sq,Theater 13,L,20,Inside Out 2,IMAX,
+Lincoln Sq,Theater 13,L,31,Interstellar,IMAX 70MM,Rewatch
+Lincoln Sq,Theater 13,L,32,Interstellar,IMAX 70MM,Rewatch
+Lincoln Sq,Theater 13,L,34,Furiosa: A Mad Max Saga,IMAX,
+Lincoln Sq,Theater 13,L,36,F1 The Movie,IMAX,
+34th St,Theater 1,D,5,Lilo & Stitch,Standard,
+34th St,Theater 1,D,6,Lilo & Stitch,Standard,
+34th St,Theater 1,F,4,Warfare,Standard,
+34th St,Theater 1,G,4,Bob Marley: One Love,Standard,
+34th St,Theater 2,E,9,We Live in Time,Standard,
+34th St,Theater 2,E,10,We Live in Time,Standard,
+34th St,Theater 3,G,4,The Fall Guy,Standard,
+34th St,Theater 4,E,5,Speak No Evil,Standard,
+34th St,Theater 4,E,6,Speak No Evil,Standard,
+34th St,Theater 5,D,10,Blink Twice,Standard,
+34th St,Theater 5,D,11,Blink Twice,Standard,
+34th St,Theater 5,E,7,Deadpool & Wolverine,Standard,
+34th St,Theater 5,E,8,Deadpool & Wolverine,Standard,
+34th St,Theater 6,F,7,Babygirl,Standard,
+34th St,Theater 6,F,8,Babygirl,Standard,
+34th St,Theater 6,H,5,Kinds of Kindness,Standard,
+34th St,Theater 7,G,5,Monkey Man,Standard,
+34th St,Theater 8,C,15,The Roses,Standard,
+34th St,Theater 8,E,8,A Minecraft Movie,Dolby,
+34th St,Theater 8,E,9,A Minecraft Movie,Dolby,
+34th St,Theater 8,E,10,A Minecraft Movie,Dolby,
+34th St,Theater 9,E,4,Moana 2,Standard,
+34th St,Theater 9,E,5,Moana 2,Standard,
+34th St,Theater 10,F,9,Madame Web,Standard,
+34th St,Theater 12,A,9,Eddington,Standard,
+34th St,Theater 12,D,5,Kung Fu Panda 4,Standard,
+34th St,Theater 12,D,6,Kung Fu Panda 4,Standard,
+34th St,Theater 13,D,8,Weapons,IMAX,
+34th St,Theater 13,D,12,Wolf Man,IMAX,
+34th St,Theater 13,E,9,Se7en,IMAX,
+34th St,Theater 13,H,11,Civil War,IMAX,
+34th St,Theater 13,J,10,Kingdom of the Planet of the Apes,IMAX,
+34th St,Theater 13,J,11,Kingdom of the Planet of the Apes,IMAX,
+34th St,Theater 13,L,10,Everything Everywhere All At Once,IMAX,
+34th St,Theater 13,M,16,Uncut Gems,IMAX,
+19th St,Theater 1,F,1,Twisters,Standard,
+19th St,Theater 1,F,2,Twisters,Standard,
+19th St,Theater 2,G,9,Godzilla x King: The New Empire,Standard,
+19th St,Theater 4,E,8,Ghostbusters: Frozen Empire,Standard,
+19th St,Theater 5,F,5,A Quiet Place: Day One,Standard,
+19th St,Theater 5,F,6,A Quiet Place: Day One,Standard,
+19th St,Theater 6,B,8,Together,Standard,
+Riverside,Theater 1,K,7,Avatar: The Way of Water,Standard,
+Riverside,Theater 1,K,8,Avatar: The Way of Water,Standard,
+Riverside,Theater 2,H,15,Guardians of the Galaxy Vol. 3,Standard,
+Riverside,Theater 2,H,16,Guardians of the Galaxy Vol. 3,Standard,
+Riverside,Theater 2,H,17,Guardians of the Galaxy Vol. 3,Standard,
+Riverside,Theater 2,J,11,Unknown,Standard,Movie not listed
+Riverside,Theater 2,J,12,Unknown,Standard,Movie not listed
+Riverside,Theater 3,F,9,One Battle After Another,Standard,
+Riverside,Theater 3,F,10,One Battle After Another,Standard,
+Riverside,Theater 3,F,11,One Battle After Another,Standard,
+Riverside,Theater 3,H,7,Thor: Love and Thunder,Standard,
+Riverside,Theater 3,H,8,Thor: Love and Thunder,Standard,
+Riverside,Theater 4,G,14,Ant-Man and the Wasp: Quantumania,Standard,
+Riverside,Theater 4,G,15,Ant-Man and the Wasp: Quantumania,Standard,
+Riverside,Theater 4,G,16,Ant-Man and the Wasp: Quantumania,Standard,
+Riverside,Theater 5,E,7,Star Wars Episode I: The Phantom Menace,Standard,
+Riverside,Theater 5,E,8,Star Wars Episode I: The Phantom Menace,Standard,
+Riverside,Theater 5,E,9,Star Wars Episode I: The Phantom Menace,Standard,
+Riverside,Theater 5,E,10,Star Wars Episode I: The Phantom Menace,Standard,
+Riverside,Theater 5,E,11,Star Wars Episode I: The Phantom Menace,Standard,
+Riverside,Theater 5,F,15,Black Panther: Wakanda Forever,Standard,
+Riverside,Theater 5,F,16,Black Panther: Wakanda Forever,Standard,
+Riverside,Theater 7,D,5,Don't Worry Darling,Standard,
+Riverside,Theater 7,D,6,Don't Worry Darling,Standard,
+Riverside,Theater 7,E,3,The Amateur,Standard,
+Riverside,Theater 7,E,4,The Amateur,Standard,
+Riverside,Theater 7,E,4,Naked Gun,Standard,
+Riverside,Theater 7,E,5,Naked Gun,Standard,
+Riverside,Theater 7,E,6,Naked Gun,Standard,
+Garden State Plaza,Theater 3,E,13,Mickey 17,Standard,
+Garden State Plaza,Theater 14,L,18,A Complete Unknown,Standard,
+Garden State Plaza,Theater 14,L,19,A Complete Unknown,Standard,
+Garden State Plaza,Theater 15,M,18,The Phoenician Scheme,Standard,
+Garden State Plaza,Theater 15,M,19,The Phoenician Scheme,Standard,
+Garden State Plaza,Theater 15,N,7,Oppenheimer,Standard,
+Garden State Plaza,Theater 15,N,8,Oppenheimer,Standard,
+Garden State Plaza,Theater 15,N,9,Oppenheimer,Standard,
+Garden State Plaza,Theater 15,N,10,Oppenheimer,Standard,
+Palisades,Theater 2,H,9,Creed III,Standard,
+Palisades,Theater 2,H,10,Creed III,Standard,
+Palisades,Theater 3,G,9,Spider-Man: Across the Spider-Verse,Standard,
+Palisades,Theater 3,G,10,Spider-Man: Across the Spider-Verse,Standard,
+Palisades,Theater 3,G,11,Spider-Man: Across the Spider-Verse,Standard,
+Palisades,Theater 3,G,12,Spider-Man: Across the Spider-Verse,Standard,
+Palisades,Theater 11,F,13,Barbie,Standard,
+Palisades,Theater 11,F,14,Barbie,Standard,
+Palisades,Theater 13,E,5,Top Gun: Maverick,Standard,
+Palisades,Theater 13,E,6,Top Gun: Maverick,Standard,
+Palisades,Theater 18,E,4,Saturday Night,Standard,
+Palisades,Theater 18,E,5,Saturday Night,Standard,
+Palisades,Theater 18,E,6,Saturday Night,Standard,
+Wayne,Theater 6,D,10,Unknown,Standard,Movie not listed
+Wayne,Theater 6,D,11,Unknown,Standard,Movie not listed
+Wayne,Theater 6,D,12,Unknown,Standard,Movie not listed
+Alderwood Mall,Theater 13,G,12,Longlegs,Standard,
+Alderwood Mall,Theater 13,G,13,Longlegs,Standard,
+Alderwood Mall,Theater 13,G,14,Longlegs,Standard`;
+
+// Parse CSV data
+function parseCSVData(csvText) {
+    const lines = csvText.trim().split('\n');
+    const headers = lines[0].split(',');
+    const seatVisits = {};
+    const locations = new Set();
+    const theaterMap = {};
+    
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) continue;
+        
+        // Handle CSV parsing (simple split, may need improvement for quoted fields)
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                values.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        values.push(current.trim());
+        
+        if (values.length < 6) continue;
+        
+        const location = values[0].trim();
+        const theater = values[1].trim();
+        const row = values[2].trim().toUpperCase(); // Normalize to uppercase
+        const seatNum = parseInt(values[3].trim());
+        const movie = values[4].trim();
+        const format = values[5].trim();
+        const notes = values[6] ? values[6].trim() : '';
+        
+        if (!location || !theater || !row || isNaN(seatNum)) continue;
+        
+        locations.add(location);
+        
+        // Create location key
+        const locationKey = location.toLowerCase().replace(/\s+/g, '-');
+        if (!theaterMap[locationKey]) {
+            theaterMap[locationKey] = new Set();
+        }
+        
+        // Extract theater number
+        const theaterMatch = theater.match(/\d+/);
+        const theaterNum = theaterMatch ? theaterMatch[0] : theater;
+        theaterMap[locationKey].add(theaterNum);
+        
+        // Store seat visit data
+        const key = `${locationKey}-${theaterNum}-${row}-${seatNum}`;
+        if (!seatVisits[key]) {
+            seatVisits[key] = [];
+        }
+        seatVisits[key].push({ movie, format, notes });
+    }
+    
+    return { seatVisits, locations: Array.from(locations), theaterMap };
+}
+
+// Get standard layout (same for all theaters for now)
+function getStandardLayout() {
+    return [
+        // Row A: 33 seats, A28, A29, A30, A31 are accessible
+        { pattern: (() => {
+            const seats = Array(33).fill('normal');
+            seats[5] = 'accessible'; // A28
+            seats[4] = 'accessible'; // A29
+            seats[3] = 'accessible'; // A30
+            seats[2] = 'accessible'; // A31
+            return seats;
+        })() },
+        // Row B: 35 seats
+        { pattern: Array(35).fill('normal') },
+        // Row C: 38 seats
+        { pattern: Array(38).fill('normal') },
+        // Row D: 41 seats
+        { pattern: Array(41).fill('normal') },
+        // Row E: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row F: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row G: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row H: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row I: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row J: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row K: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row L: 42 seats
+        { pattern: Array(42).fill('normal') },
+        // Row M: 39 seats, M10, M11, M12, M13, M18, M19, M20, M21, M26, M27, M28, M29 are accessible
+        { pattern: (() => {
+            const seats = Array(39).fill('normal');
+            const accessibleSeatNumbers = [10, 11, 12, 13, 18, 19, 20, 21, 26, 27, 28, 29];
+            accessibleSeatNumbers.forEach(seatNum => {
+                const index = 39 - seatNum;
+                seats[index] = 'accessible';
+            });
+            return seats;
+        })() },
+        // Row N: 42 seats (assumed - same as other rows)
+        { pattern: Array(42).fill('normal') }
+    ];
+}
+
+// Parse CSV and build theater structure
+const { seatVisits, locations, theaterMap } = parseCSVData(csvData);
+const standardLayout = getStandardLayout();
+
+// Build theaters object from CSV data
+const theaters = {};
+locations.forEach(location => {
+    const locationKey = location.toLowerCase().replace(/\s+/g, '-');
+    const locationName = location;
+    theaters[locationKey] = {
+        name: locationName,
+        auditoriums: {}
+    };
+    
+    const theaterNums = Array.from(theaterMap[locationKey] || []).sort((a, b) => parseInt(a) - parseInt(b));
+    theaterNums.forEach(theaterNum => {
+        theaters[locationKey].auditoriums[theaterNum] = {
+            name: `Theater ${theaterNum}`,
+            layout: standardLayout
+        };
+    });
+});
+
+// Store seat visit data globally
+window.seatVisits = seatVisits;
+
+// Current theater and auditorium (default to first location and theater)
+const firstLocation = locations[0] ? locations[0].toLowerCase().replace(/\s+/g, '-') : 'lincoln-sq';
+const firstTheater = Array.from(theaterMap[firstLocation] || [])[0] || '13';
+let currentTheater = firstLocation;
+let currentAuditorium = firstTheater;
+
+// Store seat states (sat in or not) per theater/auditorium
+let seatStates = {};
+
+// Initialize seat states from localStorage if available
+function loadSeatStates() {
+    const saved = localStorage.getItem('seatStates');
+    if (saved) {
+        seatStates = JSON.parse(saved);
+    } else {
+        seatStates = {};
+    }
+}
+
+// Reset all seats for current theater/auditorium to "not sat in"
+function resetAllSeats() {
+    const seatLayout = getCurrentSeatLayout();
+    if (!seatLayout || seatLayout.length === 0) return;
+    
+    const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
+    const prefix = `${currentTheater}-${currentAuditorium}-`;
+    
+    // Remove all keys for current theater/auditorium
+    Object.keys(seatStates).forEach(key => {
+        if (key.startsWith(prefix)) {
+            delete seatStates[key];
+        }
+    });
+    
+    saveSeatStates();
+    renderSeatingChart();
+}
+
+// Clear all seat data (for all theaters/auditoriums)
+function clearAllSeatData() {
+    seatStates = {};
+    saveSeatStates();
+    renderSeatingChart();
+}
+
+// Save seat states to localStorage
+function saveSeatStates() {
+    localStorage.setItem('seatStates', JSON.stringify(seatStates));
+}
+
+// Get seat key (theater + auditorium + row + seat number)
+function getSeatKey(theater, auditorium, row, seatNumber) {
+    return `${theater}-${auditorium}-${row}-${seatNumber}`;
+}
+
+// Get current seat key
+function getCurrentSeatKey(row, seatNumber) {
+    return getSeatKey(currentTheater, currentAuditorium, row, seatNumber);
+}
+
+// Get visit data for a seat
+function getSeatVisitData(row, seatNumber) {
+    const key = getCurrentSeatKey(row, seatNumber);
+    return window.seatVisits[key] || null;
+}
+
+// Check if seat has been sat in (either in localStorage or CSV data)
+function hasSatIn(row, seatNumber) {
+    const key = getCurrentSeatKey(row, seatNumber);
+    // Check CSV visit data first
+    if (window.seatVisits && window.seatVisits[key] && window.seatVisits[key].length > 0) {
+        return true;
+    }
+    // Check localStorage
+    return seatStates[key] === true;
+}
+
+// Toggle seat state
+function toggleSeat(row, seatNumber) {
+    const key = getCurrentSeatKey(row, seatNumber);
+    seatStates[key] = !seatStates[key];
+    saveSeatStates();
+    renderSeatingChart();
+}
+
+// Get current seat layout
+function getCurrentSeatLayout() {
+    return theaters[currentTheater]?.auditoriums[currentAuditorium]?.layout || [];
+}
+
+// Update auditorium dropdown based on selected theater
+function updateAuditoriumDropdown() {
+    const auditoriumSelect = document.getElementById('auditoriumSelect');
+    auditoriumSelect.innerHTML = '';
+    
+    const auditoriums = theaters[currentTheater]?.auditoriums || {};
+    Object.keys(auditoriums).forEach(auditoriumId => {
+        const option = document.createElement('option');
+        option.value = auditoriumId;
+        option.textContent = auditoriums[auditoriumId].name;
+        auditoriumSelect.appendChild(option);
+    });
+    
+    // Set current auditorium if it exists, otherwise set to first
+    if (auditoriums[currentAuditorium]) {
+        auditoriumSelect.value = currentAuditorium;
+    } else {
+        const firstAuditorium = Object.keys(auditoriums)[0];
+        if (firstAuditorium) {
+            currentAuditorium = firstAuditorium;
+            auditoriumSelect.value = currentAuditorium;
+        }
+    }
+}
+
+// Handle theater selection change
+function handleTheaterChange() {
+    const theaterSelect = document.getElementById('theaterSelect');
+    currentTheater = theaterSelect.value;
+    updateAuditoriumDropdown();
+    renderSeatingChart();
+}
+
+// Handle auditorium selection change
+function handleAuditoriumChange() {
+    const auditoriumSelect = document.getElementById('auditoriumSelect');
+    currentAuditorium = auditoriumSelect.value;
+    renderSeatingChart();
+}
+
+// Create a seat element
+function createSeat(row, seatNumber, accessible = false) {
+    const seat = document.createElement('div');
+    seat.className = 'seat';
+    
+    if (accessible) {
+        seat.classList.add('accessible');
+    }
+    
+    const visitData = getSeatVisitData(row, seatNumber);
+    const hasBeenSatIn = hasSatIn(row, seatNumber);
+    
+    if (hasBeenSatIn) {
+        seat.classList.add('sat-in');
+        // Add tooltip data
+        if (visitData && visitData.length > 0) {
+            seat.setAttribute('data-tooltip', 'true');
+            const tooltipText = visitData.map(v => {
+                let text = `${v.movie} (${v.format})`;
+                if (v.notes) {
+                    text += ` - ${v.notes}`;
+                }
+                return text;
+            }).join('\n');
+            seat.setAttribute('title', tooltipText);
+            seat.setAttribute('data-movies', JSON.stringify(visitData));
+        }
+    } else {
+        seat.classList.add('available');
+    }
+    
+    const seatNumberLabel = document.createElement('span');
+    seatNumberLabel.className = 'seat-number';
+    seatNumberLabel.textContent = seatNumber;
+    seat.appendChild(seatNumberLabel);
+    
+    // Add tooltip element for hover
+    if (visitData && visitData.length > 0) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'seat-tooltip';
+        const tooltipContent = visitData.map(v => {
+            let text = `<strong>${v.movie}</strong><br>${v.format}`;
+            if (v.notes) {
+                text += `<br><em>${v.notes}</em>`;
+            }
+            return `<div class="tooltip-entry">${text}</div>`;
+        }).join('');
+        tooltip.innerHTML = tooltipContent;
+        seat.appendChild(tooltip);
+    }
+    
+    seat.addEventListener('click', () => toggleSeat(row, seatNumber));
+    
+    return seat;
+}
+
+// Create an unavailable seat (gray outline)
+function createUnavailableSeat() {
+    const seat = document.createElement('div');
+    seat.className = 'seat unavailable';
+    seat.style.background = 'transparent';
+    seat.style.border = '2px solid #666';
+    seat.style.cursor = 'not-allowed';
+    seat.style.opacity = '0.5';
+    return seat;
+}
+
+// Render the seating chart
+function renderSeatingChart() {
+    const chart = document.getElementById('seatingChart');
+    chart.innerHTML = '';
+    
+    const seatLayout = getCurrentSeatLayout();
+    if (!seatLayout || seatLayout.length === 0) {
+        chart.innerHTML = '<p style="color: white;">No seating layout available for this auditorium.</p>';
+        return;
+    }
+    
+    const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
+    
+    seatLayout.forEach((rowData, rowIndex) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        
+        const rowLabelLeft = document.createElement('div');
+        rowLabelLeft.className = 'row-label row-label-left';
+        rowLabelLeft.textContent = rowLetters[rowIndex];
+        row.appendChild(rowLabelLeft);
+        
+        const totalSeats = rowData.pattern.length;
+        
+        // Number seats right to left (seat 1 is on the right)
+        // Since pattern is reversed, iterate and number from right to left
+        rowData.pattern.forEach((seatType, index) => {
+            // Calculate seat number: rightmost seat is 1, leftmost is totalSeats
+            // Since pattern is reversed, index 0 is leftmost (highest number), index (totalSeats-1) is rightmost (seat 1)
+            const seatNumber = totalSeats - index;
+            const accessible = seatType === 'accessible';
+            row.appendChild(createSeat(rowLetters[rowIndex], seatNumber, accessible));
+        });
+        
+        const rowLabelRight = document.createElement('div');
+        rowLabelRight.className = 'row-label row-label-right';
+        rowLabelRight.textContent = rowLetters[rowIndex];
+        row.appendChild(rowLabelRight);
+        
+        chart.appendChild(row);
+    });
+}
+
+// Initialize the application
+function init() {
+    loadSeatStates();
+    
+    // Set up theater dropdown
+    const theaterSelect = document.getElementById('theaterSelect');
+    theaterSelect.innerHTML = '';
+    Object.keys(theaters).forEach(theaterId => {
+        const option = document.createElement('option');
+        option.value = theaterId;
+        option.textContent = theaters[theaterId].name;
+        theaterSelect.appendChild(option);
+    });
+    theaterSelect.value = currentTheater;
+    theaterSelect.addEventListener('change', handleTheaterChange);
+    
+    // Set up auditorium dropdown
+    updateAuditoriumDropdown();
+    const auditoriumSelect = document.getElementById('auditoriumSelect');
+    auditoriumSelect.addEventListener('change', handleAuditoriumChange);
+    
+    // Don't reset seats - use CSV data instead
+    renderSeatingChart();
+}
+
+// Initialize when page loads
+init();

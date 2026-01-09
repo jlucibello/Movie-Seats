@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Theater Seat Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="theater-selector">
+            <label for="theaterSelect">Theater:</label>
+            <select id="theaterSelect">
+                <option value="amc-lincoln-square">AMC Lincoln Square</option>
+            </select>
+            <label for="auditoriumSelect">Auditorium:</label>
+            <select id="auditoriumSelect">
+                <option value="13">Auditorium 13</option>
+            </select>
+        </div>
+        <div class="screen">SCREEN</div>
+        <div class="seating-chart" id="seatingChart"></div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="seat available"></div>
+                <span>Not Sat In</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat sat-in"></div>
+                <span>Sat In</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat accessible available"></div>
+                <span>Accessible (Not Sat In)</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat accessible sat-in"></div>
+                <span>Accessible (Sat In)</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
