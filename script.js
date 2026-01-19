@@ -207,6 +207,36 @@ function parseCSVData(csvText) {
     return { seatVisits, locations: Array.from(locations), theaterMap };
 }
 
+// Get 19th St theater layout (Auditorium 6)
+function get19thStLayout() {
+    return [
+        // Row A: 10 seats
+        { pattern: Array(10).fill('normal') },
+        // Row B: 10 seats
+        { pattern: Array(10).fill('normal') },
+        // Row C: 10 seats
+        { pattern: Array(10).fill('normal') },
+        // Row D: 10 seats
+        { pattern: Array(10).fill('normal') },
+        // Row E: 10 seats
+        { pattern: Array(10).fill('normal') },
+        // Row F: 10 seats
+        { pattern: Array(10).fill('normal') },
+        // Row G: 8 seats, all accessible/handicap
+        { pattern: Array(8).fill('accessible') },
+        // Row H: 6 seats - from the right: seat 1, 2, 3, 4, gap, gap, 5, 6
+        // System numbers right-to-left (rightmost=1), so pattern should be:
+        // [seat6, seat5, gap, gap, seat4, seat3, seat2, seat1] from left to right
+        { pattern: (() => {
+            const seats = [];
+            seats.push('normal', 'normal'); // Leftmost seats (will be numbered 6, 5)
+            seats.push('gap', 'gap'); // Two gaps
+            seats.push('normal', 'normal', 'normal', 'normal'); // Rightmost seats (will be numbered 4, 3, 2, 1)
+            return seats;
+        })() }
+    ];
+}
+
 // Get standard layout (same for all theaters for now)
 function getStandardLayout() {
     return [
@@ -272,9 +302,11 @@ locations.forEach(location => {
     
     const theaterNums = Array.from(theaterMap[locationKey] || []).sort((a, b) => parseInt(a) - parseInt(b));
     theaterNums.forEach(theaterNum => {
+        // Use 19th St layout only for 19th St Theater 6, standard layout for all others
+        const layout = (locationKey === '19th-st' && theaterNum === '6') ? get19thStLayout() : standardLayout;
         theaters[locationKey].auditoriums[theaterNum] = {
             name: `Theater ${theaterNum}`,
-            layout: standardLayout
+            layout: layout
         };
     });
 });
@@ -501,16 +533,27 @@ function renderSeatingChart() {
         rowLabelLeft.textContent = rowLetters[rowIndex];
         row.appendChild(rowLabelLeft);
         
-        const totalSeats = rowData.pattern.length;
+        // Count actual seats (excluding gaps) for numbering
+        const actualSeats = rowData.pattern.filter(seatType => seatType !== 'gap').length;
+        let seatsSeenSoFar = 0;
         
         // Number seats right to left (seat 1 is on the right)
-        // Since pattern is reversed, iterate and number from right to left
-        rowData.pattern.forEach((seatType, index) => {
-            // Calculate seat number: rightmost seat is 1, leftmost is totalSeats
-            // Since pattern is reversed, index 0 is leftmost (highest number), index (totalSeats-1) is rightmost (seat 1)
-            const seatNumber = totalSeats - index;
-            const accessible = seatType === 'accessible';
-            row.appendChild(createSeat(rowLetters[rowIndex], seatNumber, accessible));
+        // Iterate left to right through pattern, number seats from right to left
+        rowData.pattern.forEach((seatType) => {
+            if (seatType === 'gap') {
+                // Create empty space for gap
+                const gap = document.createElement('div');
+                gap.style.width = '28px';
+                gap.style.height = '28px';
+                row.appendChild(gap);
+            } else {
+                // Calculate seat number: rightmost seat is 1, leftmost is actualSeats
+                // seatNumber = actualSeats - seatsSeenSoFar
+                const seatNumber = actualSeats - seatsSeenSoFar;
+                const accessible = seatType === 'accessible';
+                row.appendChild(createSeat(rowLetters[rowIndex], seatNumber, accessible));
+                seatsSeenSoFar++;
+            }
         });
         
         const rowLabelRight = document.createElement('div');
