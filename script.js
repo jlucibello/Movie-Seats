@@ -207,6 +207,38 @@ function parseCSVData(csvText) {
     return { seatVisits, locations: Array.from(locations), theaterMap };
 }
 
+// Get 34th St auditorium 1 layout
+function get34thSt1Layout() {
+    return [
+        // Row A: 14 seats (A1-A14, right-to-left numbering)
+        { pattern: Array(14).fill('normal') },
+        // Row B: 14 seats (B1-B14, right-to-left numbering)
+        { pattern: Array(14).fill('normal') },
+        // Row C: 8 accessible seats (1-8) with gaps on both sides
+        // From left to right: gaps, 8 accessible seats, gaps
+        { pattern: (() => {
+            const seats = [];
+            // Left gap (approximately 2-3 seat widths based on image)
+            seats.push('gap', 'gap');
+            // 8 accessible seats (numbered 1-8)
+            for (let i = 0; i < 8; i++) {
+                seats.push('accessible');
+            }
+            // Right gap (approximately 2-3 seat widths)
+            seats.push('gap', 'gap');
+            return seats;
+        })() },
+        // Row D: 10 seats (1-10)
+        { pattern: Array(10).fill('normal') },
+        // Row E: 10 seats (1-10)
+        { pattern: Array(10).fill('normal') },
+        // Row F: 10 seats (1-10)
+        { pattern: Array(10).fill('normal') },
+        // Row G: 10 seats (1-10)
+        { pattern: Array(10).fill('normal') }
+    ];
+}
+
 // Get Lincoln Sq auditorium 9 layout
 function getLincolnSq9Layout() {
     return [
@@ -362,6 +394,8 @@ locations.forEach(location => {
             layout = get19thStLayout();
         } else if (locationKey === 'lincoln-sq' && theaterNum === '9') {
             layout = getLincolnSq9Layout();
+        } else if (locationKey === '34th-st' && theaterNum === '1') {
+            layout = get34thSt1Layout();
         } else {
             layout = standardLayout;
         }
@@ -597,6 +631,7 @@ function renderSeatingChart() {
         // Count actual seats (excluding gaps) for numbering
         const actualSeats = rowData.pattern.filter(seatType => seatType !== 'gap').length;
         let seatsSeenSoFar = 0;
+        let patternIndex = 0;
         
         // Number seats right to left (seat 1 is on the right)
         // Iterate left to right through pattern, number seats from right to left
@@ -608,16 +643,23 @@ function renderSeatingChart() {
                 gap.style.height = '28px';
                 row.appendChild(gap);
             } else {
-                // Calculate seat number: rightmost seat is 1, leftmost is actualSeats
-                // seatNumber = actualSeats - seatsSeenSoFar
-                let seatNumber = actualSeats - seatsSeenSoFar;
-                // Apply offset if specified (for rows that don't start at seat 1)
-                const offset = rowData.seatNumberOffset || 0;
-                seatNumber += offset;
+                // Use custom seat number if available, otherwise calculate it
+                let seatNumber;
+                if (rowData.seatNumbers && rowData.seatNumbers[patternIndex] !== null && rowData.seatNumbers[patternIndex] !== undefined) {
+                    seatNumber = rowData.seatNumbers[patternIndex];
+                } else {
+                    // Calculate seat number: rightmost seat is 1, leftmost is actualSeats
+                    // seatNumber = actualSeats - seatsSeenSoFar
+                    seatNumber = actualSeats - seatsSeenSoFar;
+                    // Apply offset if specified (for rows that don't start at seat 1)
+                    const offset = rowData.seatNumberOffset || 0;
+                    seatNumber += offset;
+                }
                 const accessible = seatType === 'accessible';
                 row.appendChild(createSeat(rowLetters[rowIndex], seatNumber, accessible));
                 seatsSeenSoFar++;
             }
+            patternIndex++;
         });
         
         const rowLabelRight = document.createElement('div');
