@@ -207,6 +207,60 @@ function parseCSVData(csvText) {
     return { seatVisits, locations: Array.from(locations), theaterMap };
 }
 
+// Get Lincoln Sq auditorium 9 layout
+function getLincolnSq9Layout() {
+    return [
+        // Row A: gap, gap, 3, 4, 5, 6, 7, 8, 9, 10 (from left to right)
+        // Gaps on the left, seats on the right. Rightmost seat should be A3, so offset is 2
+        { pattern: (() => {
+            const seats = [];
+            // 2 gaps on the left
+            seats.push('gap', 'gap');
+            // 8 seats on the right (will be numbered 1-8, displayed as 3-10)
+            for (let i = 0; i < 8; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })(), seatNumberOffset: 2 }, // Offset: add 2 to seat numbers (1 becomes 3, 8 becomes 10)
+        // Row B: gap, 2, 3, 4, 5, 6, 7, 8, 9, 10 (from left to right) with B2 and B3 accessible
+        // Gap on the left, seats on the right. B2 and B3 are the rightmost two seats (accessible)
+        { pattern: (() => {
+            const seats = [];
+            // 1 gap on the left
+            seats.push('gap');
+            // 7 normal seats
+            for (let i = 0; i < 7; i++) {
+                seats.push('normal');
+            }
+            // B2 and B3 are the rightmost two seats (accessible)
+            seats.push('accessible', 'accessible');
+            return seats;
+        })(), seatNumberOffset: 1 }, // Offset: add 1 to seat numbers (1 becomes 2, 9 becomes 10)
+        // Rows C through K: seats 1 through 10 - 9 rows, each with 10 seats
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row C
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row D
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row E
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row F
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row G
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row H
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row I
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row J
+        { pattern: Array(10).fill('normal'), seatNumberOffset: 0 }, // Row K
+        // Row L: seats 2 through 9 (from right) - 8 seats, missing seats 1 and 10, all accessible
+        // Rightmost seat should be L2, so offset is 1 (seats numbered 1-8 display as 2-9)
+        { pattern: (() => {
+            const seats = [];
+            seats.push('gap'); // Missing seat 10 (leftmost)
+            // 8 accessible seats that will be numbered 1-8, displayed as 2-9
+            for (let i = 0; i < 8; i++) {
+                seats.push('accessible');
+            }
+            seats.push('gap'); // Missing seat 1 (rightmost)
+            return seats;
+        })(), seatNumberOffset: 1 } // Offset: add 1 to seat numbers (1 becomes 2, 8 becomes 9)
+    ];
+}
+
 // Get 19th St theater layout (Auditorium 6)
 function get19thStLayout() {
     return [
@@ -302,8 +356,15 @@ locations.forEach(location => {
     
     const theaterNums = Array.from(theaterMap[locationKey] || []).sort((a, b) => parseInt(a) - parseInt(b));
     theaterNums.forEach(theaterNum => {
-        // Use 19th St layout only for 19th St Theater 6, standard layout for all others
-        const layout = (locationKey === '19th-st' && theaterNum === '6') ? get19thStLayout() : standardLayout;
+        // Use specific layouts for certain theaters
+        let layout;
+        if (locationKey === '19th-st' && theaterNum === '6') {
+            layout = get19thStLayout();
+        } else if (locationKey === 'lincoln-sq' && theaterNum === '9') {
+            layout = getLincolnSq9Layout();
+        } else {
+            layout = standardLayout;
+        }
         theaters[locationKey].auditoriums[theaterNum] = {
             name: `Theater ${theaterNum}`,
             layout: layout
@@ -549,7 +610,10 @@ function renderSeatingChart() {
             } else {
                 // Calculate seat number: rightmost seat is 1, leftmost is actualSeats
                 // seatNumber = actualSeats - seatsSeenSoFar
-                const seatNumber = actualSeats - seatsSeenSoFar;
+                let seatNumber = actualSeats - seatsSeenSoFar;
+                // Apply offset if specified (for rows that don't start at seat 1)
+                const offset = rowData.seatNumberOffset || 0;
+                seatNumber += offset;
                 const accessible = seatType === 'accessible';
                 row.appendChild(createSeat(rowLetters[rowIndex], seatNumber, accessible));
                 seatsSeenSoFar++;
