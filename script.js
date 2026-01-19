@@ -210,30 +210,30 @@ function parseCSVData(csvText) {
 // Get Lincoln Sq auditorium 9 layout
 function getLincolnSq9Layout() {
     return [
-        // Row A: gap, gap, 3, 4, 5, 6, 7, 8, 9, 10 (from left to right)
-        // Gaps on the left, seats on the right. Rightmost seat should be A3, so offset is 2
+        // Row A: gap, gap, 3, 4, 5, 6, 7, 8, 9, 10 (from right to left visually)
+        // Gaps on the right, seats on the left. Rightmost seat should be A3, so offset is 2
         { pattern: (() => {
             const seats = [];
-            // 2 gaps on the left
-            seats.push('gap', 'gap');
-            // 8 seats on the right (will be numbered 1-8, displayed as 3-10)
+            // 2 gaps on the right (representing missing seats 1 and 2 on the right)
             for (let i = 0; i < 8; i++) {
                 seats.push('normal');
             }
+            seats.push('gap', 'gap');
+            // 8 seats on the left (will be numbered 1-8, displayed as 3-10)
             return seats;
         })(), seatNumberOffset: 2 }, // Offset: add 2 to seat numbers (1 becomes 3, 8 becomes 10)
-        // Row B: gap, 2, 3, 4, 5, 6, 7, 8, 9, 10 (from left to right) with B2 and B3 accessible
+        // Row B: gap, 2, 3, 4, 5, 6, 7, 8, 9, 10 (from right to left visually) with B2 and B3 accessible
         // Gap on the left, seats on the right. B2 and B3 are the rightmost two seats (accessible)
         { pattern: (() => {
             const seats = [];
-            // 1 gap on the left
-            seats.push('gap');
             // 7 normal seats
             for (let i = 0; i < 7; i++) {
                 seats.push('normal');
             }
             // B2 and B3 are the rightmost two seats (accessible)
             seats.push('accessible', 'accessible');
+            // 1 gap on the right (representing missing seat 1 on the right)
+            seats.push('gap');
             return seats;
         })(), seatNumberOffset: 1 }, // Offset: add 1 to seat numbers (1 becomes 2, 9 becomes 10)
         // Rows C through K: seats 1 through 10 - 9 rows, each with 10 seats
