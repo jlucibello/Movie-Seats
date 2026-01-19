@@ -524,11 +524,36 @@ function updateAuditoriumDropdown() {
     }
 }
 
+// Check if current auditorium has updated layout
+function isLayoutUpdated(theater, auditorium) {
+    // List of updated auditoriums: location-key, auditorium-number
+    const updatedAuditoriums = [
+        { location: 'lincoln-sq', auditorium: '13' },
+        { location: 'lincoln-sq', auditorium: '9' },
+        { location: '19th-st', auditorium: '6' },
+        { location: '34th-st', auditorium: '1' }
+    ];
+    
+    return updatedAuditoriums.some(item => 
+        item.location === theater && item.auditorium === auditorium
+    );
+}
+
+// Update layout note visibility
+function updateLayoutNote() {
+    const layoutNote = document.getElementById('layoutNote');
+    if (layoutNote) {
+        const isUpdated = isLayoutUpdated(currentTheater, currentAuditorium);
+        layoutNote.style.display = isUpdated ? 'none' : 'block';
+    }
+}
+
 // Handle theater selection change
 function handleTheaterChange() {
     const theaterSelect = document.getElementById('theaterSelect');
     currentTheater = theaterSelect.value;
     updateAuditoriumDropdown();
+    updateLayoutNote();
     renderSeatingChart();
 }
 
@@ -536,6 +561,7 @@ function handleTheaterChange() {
 function handleAuditoriumChange() {
     const auditoriumSelect = document.getElementById('auditoriumSelect');
     currentAuditorium = auditoriumSelect.value;
+    updateLayoutNote();
     renderSeatingChart();
 }
 
@@ -691,6 +717,9 @@ function init() {
     updateAuditoriumDropdown();
     const auditoriumSelect = document.getElementById('auditoriumSelect');
     auditoriumSelect.addEventListener('change', handleAuditoriumChange);
+    
+    // Update layout note visibility
+    updateLayoutNote();
     
     // Don't reset seats - use CSV data instead
     renderSeatingChart();
