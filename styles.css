@@ -281,3 +281,17 @@ body {
     transform: none;
     box-shadow: none;
 }
+
+.legend-accessible-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: #d4af37;
+    border-radius: 50%;
+    border: 2px solid white;
+    color: white;
+    font-weight: bold;
+}
