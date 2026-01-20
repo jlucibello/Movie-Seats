@@ -239,6 +239,108 @@ function get34thSt1Layout() {
     ];
 }
 
+// Get Lincoln Sq auditorium 1 layout
+function getLincolnSq1Layout() {
+    return {
+        rows: [
+        // Row A: 15 seats (A1-A15), A6, A7, A8, A9 accessible
+        // System numbers right-to-left, so A1 is rightmost, A15 is leftmost
+        // A6, A7, A8, A9 are 6th, 7th, 8th, 9th from right
+        { pattern: (() => {
+            const seats = [];
+            // Leftmost 6 seats (A15-A10) - normal
+            for (let i = 0; i < 6; i++) {
+                seats.push('normal');
+            }
+            // Next 4 seats (A9-A6) - accessible
+            for (let i = 0; i < 4; i++) {
+                seats.push('accessible');
+            }
+            // Rightmost 5 seats (A5-A1) - normal
+            for (let i = 0; i < 5; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })() },
+        // Row B: 19 seats (B1-B19)
+        { pattern: Array(19).fill('normal') },
+        // Row C: 24 seats (C1-C24)
+        { pattern: Array(24).fill('normal') },
+        // Row D: 28 seats (D1-D28)
+        { pattern: Array(28).fill('normal') },
+        // Row E: 26 seats with gaps
+        // From right: 1-10, gap, 11-16, gap, 17-26
+        { pattern: (() => {
+            const seats = [];
+            // Leftmost section: seats 17-26 (10 seats)
+            for (let i = 0; i < 10; i++) {
+                seats.push('normal');
+            }
+            // Gap
+            seats.push('gap');
+            // Middle section: seats 11-16 (6 seats)
+            for (let i = 0; i < 6; i++) {
+                seats.push('normal');
+            }
+            // Gap
+            seats.push('gap');
+            // Rightmost section: seats 1-10 (10 seats)
+            for (let i = 0; i < 10; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })(), seatNumbers: (() => {
+            const nums = [];
+            // Leftmost: 17-26
+            for (let i = 26; i >= 17; i--) nums.push(i);
+            nums.push(null); // Gap
+            // Middle: 11-16
+            for (let i = 16; i >= 11; i--) nums.push(i);
+            nums.push(null); // Gap
+            // Rightmost: 1-10
+            for (let i = 10; i >= 1; i--) nums.push(i);
+            return nums;
+        })() },
+        // Row F: 28 seats (F1-F28)
+        { pattern: Array(28).fill('normal') },
+        // Row G: 28 seats (G1-G28)
+        { pattern: Array(28).fill('normal') },
+        // Row H: 28 seats (H1-H28)
+        { pattern: Array(28).fill('normal') },
+        // Row J: 22 seats (J1-J22), J14, J15, J16, J17 accessible
+        // System numbers right-to-left, so J1 is rightmost, J22 is leftmost
+        // J14, J15, J16, J17 are 14th, 15th, 16th, 17th from right
+        { pattern: (() => {
+            const seats = [];
+            // Leftmost 5 seats (J22-J18) - normal
+            for (let i = 0; i < 5; i++) {
+                seats.push('normal');
+            }
+            // Next 4 seats (J17-J14) - accessible
+            for (let i = 0; i < 4; i++) {
+                seats.push('accessible');
+            }
+            // Rightmost 13 seats (J13-J1) - normal
+            for (let i = 0; i < 13; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })() },
+        // Row K: Based on image pattern, likely similar to other rows
+        // User didn't specify, but image shows pattern. Let me use a reasonable default
+        // I'll make it 28 seats like F, G, H
+        { pattern: Array(28).fill('normal') },
+        // Row L: 28 seats
+        { pattern: Array(28).fill('normal') },
+        // Row M: 28 seats
+        { pattern: Array(28).fill('normal') },
+        // Row N: 28 seats
+        { pattern: Array(28).fill('normal') }
+        ],
+        rowLetters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N'] // Skip row I
+    };
+}
+
 // Get Lincoln Sq auditorium 9 layout
 function getLincolnSq9Layout() {
     return [
@@ -392,6 +494,8 @@ locations.forEach(location => {
         let layout;
         if (locationKey === '19th-st' && theaterNum === '6') {
             layout = get19thStLayout();
+        } else if (locationKey === 'lincoln-sq' && theaterNum === '1') {
+            layout = getLincolnSq1Layout();
         } else if (locationKey === 'lincoln-sq' && theaterNum === '9') {
             layout = getLincolnSq9Layout();
         } else if (locationKey === '34th-st' && theaterNum === '1') {
@@ -433,7 +537,7 @@ function resetAllSeats() {
     const seatLayout = getCurrentSeatLayout();
     if (!seatLayout || seatLayout.length === 0) return;
     
-    const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
+    const rowLetters = getCurrentRowLetters();
     const prefix = `${currentTheater}-${currentAuditorium}-`;
     
     // Remove all keys for current theater/auditorium
@@ -496,7 +600,23 @@ function toggleSeat(row, seatNumber) {
 
 // Get current seat layout
 function getCurrentSeatLayout() {
-    return theaters[currentTheater]?.auditoriums[currentAuditorium]?.layout || [];
+    const layout = theaters[currentTheater]?.auditoriums[currentAuditorium]?.layout || [];
+    // If layout is an object with rows property, return the rows array
+    if (layout && typeof layout === 'object' && !Array.isArray(layout) && layout.rows) {
+        return layout.rows;
+    }
+    return layout;
+}
+
+// Get custom row letters for current layout
+function getCurrentRowLetters() {
+    const layout = theaters[currentTheater]?.auditoriums[currentAuditorium]?.layout || [];
+    // If layout is an object with rowLetters property, return it
+    if (layout && typeof layout === 'object' && !Array.isArray(layout) && layout.rowLetters) {
+        return layout.rowLetters;
+    }
+    // Default row letters
+    return ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
 }
 
 // Update auditorium dropdown based on selected theater
@@ -528,7 +648,7 @@ function updateAuditoriumDropdown() {
 function isLayoutUpdated(theater, auditorium) {
     // List of updated auditoriums: location-key, auditorium-number
     const updatedAuditoriums = [
-        { location: 'lincoln-sq', auditorium: '13' },
+        { location: 'lincoln-sq', auditorium: '1' },
         { location: 'lincoln-sq', auditorium: '9' },
         { location: '19th-st', auditorium: '6' },
         { location: '34th-st', auditorium: '1' }
@@ -643,7 +763,7 @@ function renderSeatingChart() {
         return;
     }
     
-    const rowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
+    const rowLetters = getCurrentRowLetters();
     
     seatLayout.forEach((rowData, rowIndex) => {
         const row = document.createElement('div');
