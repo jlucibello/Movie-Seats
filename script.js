@@ -243,11 +243,13 @@ function get34thSt1Layout() {
 function getLincolnSq1Layout() {
     return {
         rows: [
-        // Row A: 15 seats (A1-A15), A6, A7, A8, A9 accessible
+        // Row A: 15 seats (A1-A15), A6, A7, A8, A9 accessible, shifted right by one space
         // System numbers right-to-left, so A1 is rightmost, A15 is leftmost
         // A6, A7, A8, A9 are 6th, 7th, 8th, 9th from right
         { pattern: (() => {
             const seats = [];
+            // Gap at leftmost (shifts row right by one space)
+            seats.push('gap');
             // Leftmost 6 seats (A15-A10) - normal
             for (let i = 0; i < 6; i++) {
                 seats.push('normal');
@@ -262,30 +264,60 @@ function getLincolnSq1Layout() {
             }
             return seats;
         })() },
-        // Row B: 19 seats (B1-B19)
-        { pattern: Array(19).fill('normal') },
+        // Row B: 19 seats (B1-B19), shifted right by one space
+        { pattern: (() => {
+            const seats = [];
+            // Gap at leftmost (shifts row right by one space)
+            seats.push('gap');
+            // 19 seats
+            for (let i = 0; i < 19; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })() },
         // Row C: 24 seats (C1-C24)
         { pattern: Array(24).fill('normal') },
         // Row D: 28 seats (D1-D28)
         { pattern: Array(28).fill('normal') },
         // Row E: 26 seats with gaps
         // From right: 1-10, gap, 11-16, gap, 17-26
+        // Seats 9-12 and 15-18 are accessible
+        // Pattern positions: 0-9 (seats 26-17), 10 (gap), 11-16 (seats 16-11), 17 (gap), 18-27 (seats 10-1)
         { pattern: (() => {
             const seats = [];
-            // Leftmost section: seats 17-26 (10 seats)
-            for (let i = 0; i < 10; i++) {
+            // Leftmost section: seats 17-26 (positions 0-9)
+            // Positions 0-7: seats 26-19 (normal)
+            for (let i = 0; i < 8; i++) {
                 seats.push('normal');
             }
-            // Gap
+            // Position 8: seat 18 (accessible)
+            seats.push('accessible');
+            // Position 9: seat 17 (accessible)
+            seats.push('accessible');
+            // Gap (position 10)
             seats.push('gap');
-            // Middle section: seats 11-16 (6 seats)
-            for (let i = 0; i < 6; i++) {
+            // Middle section: seats 11-16 (positions 11-16)
+            // Position 11: seat 16 (accessible)
+            seats.push('accessible');
+            // Position 12: seat 15 (accessible)
+            seats.push('accessible');
+            // Positions 13-14: seats 14-13 (normal)
+            for (let i = 0; i < 2; i++) {
                 seats.push('normal');
             }
-            // Gap
+            // Position 15: seat 12 (accessible)
+            seats.push('accessible');
+            // Position 16: seat 11 (accessible)
+            seats.push('accessible');
+            // Gap (position 17)
             seats.push('gap');
-            // Rightmost section: seats 1-10 (10 seats)
-            for (let i = 0; i < 10; i++) {
+            // Rightmost section: seats 1-10 (positions 18-27)
+            // Position 18: seat 10 (accessible)
+            seats.push('accessible');
+            // Position 19: seat 9 (accessible)
+            seats.push('accessible');
+            // Positions 20-27: seats 8-1 (normal)
+            for (let i = 0; i < 8; i++) {
                 seats.push('normal');
             }
             return seats;
@@ -310,8 +342,13 @@ function getLincolnSq1Layout() {
         // Row J: 22 seats (J1-J22), J14, J15, J16, J17 accessible
         // System numbers right-to-left, so J1 is rightmost, J22 is leftmost
         // J14, J15, J16, J17 are 14th, 15th, 16th, 17th from right
+        // Shifted right by 6 gaps to align J1 with H1 (H has 28 seats, J has 22 seats)
         { pattern: (() => {
             const seats = [];
+            // 6 gaps on the left to align J1 with H1
+            for (let i = 0; i < 6; i++) {
+                seats.push('gap');
+            }
             // Leftmost 5 seats (J22-J18) - normal
             for (let i = 0; i < 5; i++) {
                 seats.push('normal');
@@ -326,16 +363,132 @@ function getLincolnSq1Layout() {
             }
             return seats;
         })() },
-        // Row K: Based on image pattern, likely similar to other rows
-        // User didn't specify, but image shows pattern. Let me use a reasonable default
-        // I'll make it 28 seats like F, G, H
-        { pattern: Array(28).fill('normal') },
-        // Row L: 28 seats
-        { pattern: Array(28).fill('normal') },
-        // Row M: 28 seats
-        { pattern: Array(28).fill('normal') },
-        // Row N: 28 seats
-        { pattern: Array(28).fill('normal') }
+        // Row K: 25 seats with gaps between seats 4-5 and 21-22, shifted right by one space
+        // From right: seats 1-4, gap, seats 5-21, gap, seats 22-25
+        { pattern: (() => {
+            const seats = [];
+            // Gap at leftmost (shifts row right by one space)
+            seats.push('gap');
+            // Leftmost section: seats 22-25 (4 seats)
+            for (let i = 0; i < 4; i++) {
+                seats.push('normal');
+            }
+            // Gap between seats 21 and 22
+            seats.push('gap');
+            // Middle section: seats 5-21 (17 seats)
+            for (let i = 0; i < 17; i++) {
+                seats.push('normal');
+            }
+            // Gap between seats 4 and 5
+            seats.push('gap');
+            // Rightmost section: seats 1-4 (4 seats)
+            for (let i = 0; i < 4; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })(), seatNumbers: (() => {
+            const nums = [];
+            // Gap at leftmost
+            nums.push(null);
+            // Leftmost: 22-25
+            for (let i = 25; i >= 22; i--) nums.push(i);
+            nums.push(null); // Gap
+            // Middle: 5-21
+            for (let i = 21; i >= 5; i--) nums.push(i);
+            nums.push(null); // Gap
+            // Rightmost: 1-4
+            for (let i = 4; i >= 1; i--) nums.push(i);
+            return nums;
+        })() },
+        // Row L: 25 seats with gaps between seats 4-5 and 21-22, shifted right by one space
+        // From right: seats 1-4, gap, seats 5-21, gap, seats 22-25
+        { pattern: (() => {
+            const seats = [];
+            // Gap at leftmost (shifts row right by one space)
+            seats.push('gap');
+            // Leftmost section: seats 22-25 (4 seats)
+            for (let i = 0; i < 4; i++) {
+                seats.push('normal');
+            }
+            // Gap between seats 21 and 22
+            seats.push('gap');
+            // Middle section: seats 5-21 (17 seats)
+            for (let i = 0; i < 17; i++) {
+                seats.push('normal');
+            }
+            // Gap between seats 4 and 5
+            seats.push('gap');
+            // Rightmost section: seats 1-4 (4 seats)
+            for (let i = 0; i < 4; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })(), seatNumbers: (() => {
+            const nums = [];
+            // Gap at leftmost
+            nums.push(null);
+            // Leftmost: 22-25
+            for (let i = 25; i >= 22; i--) nums.push(i);
+            nums.push(null); // Gap
+            // Middle: 5-21
+            for (let i = 21; i >= 5; i--) nums.push(i);
+            nums.push(null); // Gap
+            // Rightmost: 1-4
+            for (let i = 4; i >= 1; i--) nums.push(i);
+            return nums;
+        })() },
+        // Row M: 17 seats (M1-M17), shifted right by one space
+        { pattern: (() => {
+            const seats = [];
+            // Gap at leftmost (shifts row right by one space)
+            seats.push('gap');
+            // 17 seats
+            for (let i = 0; i < 17; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })() },
+        // Row N: 12 seats with gaps, shifted right by three spaces
+        // From right: seats 1-3, gap, seats 4-6, gap (10 spaces), seats 7-12, gap (3 spaces on left)
+        { pattern: (() => {
+            const seats = [];
+            // Gap at leftmost (shifts row right by three spaces)
+            seats.push('gap', 'gap', 'gap');
+            // Leftmost section: seats 7-12 (6 seats)
+            for (let i = 0; i < 6; i++) {
+                seats.push('normal');
+            }
+            // Gap of 10 spaces
+            for (let i = 0; i < 10; i++) {
+                seats.push('gap');
+            }
+            // Middle section: seats 4-6 (3 seats)
+            for (let i = 0; i < 3; i++) {
+                seats.push('normal');
+            }
+            // Gap
+            seats.push('gap');
+            // Rightmost section: seats 1-3 (3 seats)
+            for (let i = 0; i < 3; i++) {
+                seats.push('normal');
+            }
+            return seats;
+        })(), seatNumbers: (() => {
+            const nums = [];
+            // Gap at leftmost (3 spaces)
+            nums.push(null, null, null);
+            // Leftmost: 7-12
+            for (let i = 12; i >= 7; i--) nums.push(i);
+            // Gap of 10 spaces
+            for (let i = 0; i < 10; i++) nums.push(null);
+            // Middle: 4-6
+            for (let i = 6; i >= 4; i--) nums.push(i);
+            // Gap
+            nums.push(null);
+            // Rightmost: 1-3
+            for (let i = 3; i >= 1; i--) nums.push(i);
+            return nums;
+        })() }
         ],
         rowLetters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N'] // Skip row I
     };
