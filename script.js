@@ -598,6 +598,53 @@ function toggleSeat(row, seatNumber) {
     renderSeatingChart();
 }
 
+// Check if current auditorium uses standard layout
+function usesStandardLayout() {
+    const layout = theaters[currentTheater]?.auditoriums[currentAuditorium]?.layout;
+    if (!layout) return false;
+    
+    // Check if it's the standard layout by comparing with the standard layout reference
+    return layout === standardLayout;
+}
+
+// Get all seat visit data for current theater/auditorium
+function getSeatVisitDataForCurrentAuditorium() {
+    const visits = [];
+    const prefix = `${currentTheater}-${currentAuditorium}-`;
+    
+    Object.keys(window.seatVisits).forEach(key => {
+        if (key.startsWith(prefix)) {
+            // Remove the prefix to get the row-seat part
+            const remainder = key.substring(prefix.length);
+            // Split by '-' to get row and seat number
+            const parts = remainder.split('-');
+            const row = parts[0];
+            const seatNum = parseInt(parts[1]);
+            const visitData = window.seatVisits[key];
+            
+            visitData.forEach(visit => {
+                visits.push({
+                    row: row,
+                    seat: seatNum,
+                    movie: visit.movie,
+                    format: visit.format,
+                    notes: visit.notes
+                });
+            });
+        }
+    });
+    
+    // Sort by row (A-Z) then by seat number
+    visits.sort((a, b) => {
+        if (a.row !== b.row) {
+            return a.row.localeCompare(b.row);
+        }
+        return a.seat - b.seat;
+    });
+    
+    return visits;
+}
+
 // Get current seat layout
 function getCurrentSeatLayout() {
     const layout = theaters[currentTheater]?.auditoriums[currentAuditorium]?.layout || [];
@@ -752,10 +799,100 @@ function createUnavailableSeat() {
     return seat;
 }
 
+// Render seat visit data as a table
+function renderSeatVisitTable() {
+    const chart = document.getElementById('seatingChart');
+    chart.innerHTML = '';
+    
+    // Hide the screen element when showing table
+    const screen = document.querySelector('.screen');
+    if (screen) {
+        screen.style.display = 'none';
+    }
+    
+    // Hide the legend when showing table
+    const legend = document.querySelector('.legend');
+    if (legend) {
+        legend.style.display = 'none';
+    }
+    
+    const visits = getSeatVisitDataForCurrentAuditorium();
+    
+    if (visits.length === 0) {
+        chart.innerHTML = '<p style="color: white; text-align: center; padding: 40px;">No seat visit data available for this auditorium.</p>';
+        return;
+    }
+    
+    // Create table
+    const table = document.createElement('table');
+    table.className = 'seat-visit-table';
+    
+    // Create header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    const headers = ['Row', 'Seat', 'Movie', 'Format', 'Notes'];
+    headers.forEach(headerText => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    // Create body
+    const tbody = document.createElement('tbody');
+    visits.forEach(visit => {
+        const row = document.createElement('tr');
+        
+        const rowCell = document.createElement('td');
+        rowCell.textContent = visit.row;
+        row.appendChild(rowCell);
+        
+        const seatCell = document.createElement('td');
+        seatCell.textContent = visit.seat;
+        row.appendChild(seatCell);
+        
+        const movieCell = document.createElement('td');
+        movieCell.textContent = visit.movie;
+        row.appendChild(movieCell);
+        
+        const formatCell = document.createElement('td');
+        formatCell.textContent = visit.format;
+        row.appendChild(formatCell);
+        
+        const notesCell = document.createElement('td');
+        notesCell.textContent = visit.notes || '';
+        row.appendChild(notesCell);
+        
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    
+    chart.appendChild(table);
+}
+
 // Render the seating chart
 function renderSeatingChart() {
     const chart = document.getElementById('seatingChart');
     chart.innerHTML = '';
+    
+    // If using standard layout, show table instead
+    if (usesStandardLayout()) {
+        renderSeatVisitTable();
+        return;
+    }
+    
+    // Show the screen element when showing seating chart
+    const screen = document.querySelector('.screen');
+    if (screen) {
+        screen.style.display = 'block';
+    }
+    
+    // Show the legend when showing seating chart
+    const legend = document.querySelector('.legend');
+    if (legend) {
+        legend.style.display = 'flex';
+    }
     
     const seatLayout = getCurrentSeatLayout();
     if (!seatLayout || seatLayout.length === 0) {

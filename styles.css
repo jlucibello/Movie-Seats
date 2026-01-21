@@ -304,3 +304,41 @@ body {
     color: white;
     font-weight: bold;
 }
+
+.seat-visit-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.seat-visit-table thead {
+    background: rgba(212, 175, 55, 0.3);
+}
+
+.seat-visit-table th {
+    padding: 15px;
+    text-align: left;
+    color: #d4af37;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+}
+
+.seat-visit-table td {
+    padding: 12px 15px;
+    color: white;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.seat-visit-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.seat-visit-table tbody tr:last-child td {
+    border-bottom: none;
+}
