@@ -1107,32 +1107,134 @@ function renderSeatingChart() {
     });
 }
 
-// Initialize the application
-function init() {
-    loadSeatStates();
+// Navigation functions
+function showHomePage() {
+    const homePage = document.getElementById('homePage');
+    const seatingPage = document.getElementById('seatingPage');
+    if (homePage && seatingPage) {
+        homePage.style.display = 'flex';
+        seatingPage.style.display = 'none';
+    }
+}
+
+function showSeatingPage() {
+    const homePage = document.getElementById('homePage');
+    const seatingPage = document.getElementById('seatingPage');
+    if (homePage && seatingPage) {
+        homePage.style.display = 'none';
+        seatingPage.style.display = 'block';
+        renderSeatingChart();
+    }
+}
+
+// Initialize home page selectors
+function initHomePageSelectors() {
+    const homeTheaterSelect = document.getElementById('homeTheaterSelect');
+    const homeAuditoriumSelect = document.getElementById('homeAuditoriumSelect');
+    const goButton = document.getElementById('goButton');
     
-    // Set up theater dropdown
-    const theaterSelect = document.getElementById('theaterSelect');
-    theaterSelect.innerHTML = '';
+    if (!homeTheaterSelect || !homeAuditoriumSelect || !goButton) return;
+    
+    // Populate theater dropdown
+    homeTheaterSelect.innerHTML = '<option value="">Select a theater...</option>';
     Object.keys(theaters).forEach(theaterId => {
         const option = document.createElement('option');
         option.value = theaterId;
         option.textContent = theaters[theaterId].name;
-        theaterSelect.appendChild(option);
+        homeTheaterSelect.appendChild(option);
     });
-    theaterSelect.value = currentTheater;
-    theaterSelect.addEventListener('change', handleTheaterChange);
     
-    // Set up auditorium dropdown
+    // Handle theater selection change
+    homeTheaterSelect.addEventListener('change', () => {
+        const selectedTheater = homeTheaterSelect.value;
+        homeAuditoriumSelect.innerHTML = '<option value="">Select an auditorium...</option>';
+        
+        if (selectedTheater) {
+            const auditoriums = theaters[selectedTheater]?.auditoriums || {};
+            Object.keys(auditoriums).forEach(auditoriumId => {
+                const option = document.createElement('option');
+                option.value = auditoriumId;
+                option.textContent = auditoriums[auditoriumId].name;
+                homeAuditoriumSelect.appendChild(option);
+            });
+        }
+        
+        updateGoButton();
+    });
+    
+    // Handle auditorium selection change
+    homeAuditoriumSelect.addEventListener('change', () => {
+        updateGoButton();
+    });
+    
+    // Handle Go button click
+    goButton.addEventListener('click', () => {
+        const selectedTheater = homeTheaterSelect.value;
+        const selectedAuditorium = homeAuditoriumSelect.value;
+        
+        if (selectedTheater && selectedAuditorium) {
+            currentTheater = selectedTheater;
+            currentAuditorium = selectedAuditorium;
+            
+            // Update seating page selectors
+            const theaterSelect = document.getElementById('theaterSelect');
+            const auditoriumSelect = document.getElementById('auditoriumSelect');
+            if (theaterSelect) {
+                theaterSelect.value = currentTheater;
+            }
+            updateAuditoriumDropdown();
+            if (auditoriumSelect) {
+                auditoriumSelect.value = currentAuditorium;
+            }
+            
+            // Navigate to seating page
+            showSeatingPage();
+            updateLayoutNote();
+        }
+    });
+    
+    // Function to enable/disable Go button
+    function updateGoButton() {
+        goButton.disabled = !homeTheaterSelect.value || !homeAuditoriumSelect.value;
+    }
+}
+
+// Initialize the application
+function init() {
+    loadSeatStates();
+    
+    // Initialize home page
+    initHomePageSelectors();
+    
+    // Set up seating page theater dropdown
+    const theaterSelect = document.getElementById('theaterSelect');
+    if (theaterSelect) {
+        theaterSelect.innerHTML = '';
+        Object.keys(theaters).forEach(theaterId => {
+            const option = document.createElement('option');
+            option.value = theaterId;
+            option.textContent = theaters[theaterId].name;
+            theaterSelect.appendChild(option);
+        });
+        theaterSelect.value = currentTheater;
+        theaterSelect.addEventListener('change', handleTheaterChange);
+    }
+    
+    // Set up seating page auditorium dropdown
     updateAuditoriumDropdown();
     const auditoriumSelect = document.getElementById('auditoriumSelect');
-    auditoriumSelect.addEventListener('change', handleAuditoriumChange);
+    if (auditoriumSelect) {
+        auditoriumSelect.addEventListener('change', handleAuditoriumChange);
+    }
     
-    // Update layout note visibility
-    updateLayoutNote();
+    // Set up home icon
+    const homeIcon = document.getElementById('homeIcon');
+    if (homeIcon) {
+        homeIcon.addEventListener('click', showHomePage);
+    }
     
-    // Don't reset seats - use CSV data instead
-    renderSeatingChart();
+    // Start on home page
+    showHomePage();
 }
 
 // Initialize when page loads

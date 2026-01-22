@@ -7,34 +7,65 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="layout-note" id="layoutNote" style="display: none;">
-            The seating layout for this auditorium has yet to be updated
-        </div>
-        <div class="theater-selector">
-            <label for="theaterSelect">Theater:</label>
-            <select id="theaterSelect">
-                <option value="amc-lincoln-square">AMC Lincoln Square</option>
-            </select>
-            <label for="auditoriumSelect">Auditorium:</label>
-            <select id="auditoriumSelect">
-                <option value="13">Auditorium 13</option>
-            </select>
-        </div>
-        <div class="screen">SCREEN</div>
-        <div class="seating-chart" id="seatingChart"></div>
-        <div class="legend">
-            <div class="legend-item">
-                <div class="seat available"></div>
-                <span>Not Sat In</span>
+    <!-- Home Page -->
+    <div class="home-page" id="homePage">
+        <div class="home-container">
+            <h1 class="home-title">Movie Seat Tracker</h1>
+            <div class="home-selectors">
+                <div class="home-selector-group">
+                    <label for="homeTheaterSelect">Theater:</label>
+                    <select id="homeTheaterSelect">
+                        <option value="">Select a theater...</option>
+                    </select>
+                </div>
+                <div class="home-selector-group">
+                    <label for="homeAuditoriumSelect">Auditorium:</label>
+                    <select id="homeAuditoriumSelect">
+                        <option value="">Select an auditorium...</option>
+                    </select>
+                </div>
             </div>
-            <div class="legend-item">
-                <div class="seat sat-in"></div>
-                <span>Sat In</span>
+            <button class="go-button" id="goButton" disabled>Go</button>
+        </div>
+    </div>
+
+    <!-- Seating Chart Page -->
+    <div class="seating-page" id="seatingPage" style="display: none;">
+        <div class="container">
+            <div class="home-icon" id="homeIcon" title="Return to Home">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
             </div>
-            <div class="legend-item">
-                <div class="legend-accessible-icon">♿</div>
-                <span>Accessible</span>
+            <div class="layout-note" id="layoutNote" style="display: none;">
+                The seating layout for this auditorium has yet to be updated
+            </div>
+            <div class="theater-selector">
+                <label for="theaterSelect">Theater:</label>
+                <select id="theaterSelect">
+                    <option value="amc-lincoln-square">AMC Lincoln Square</option>
+                </select>
+                <label for="auditoriumSelect">Auditorium:</label>
+                <select id="auditoriumSelect">
+                    <option value="13">Auditorium 13</option>
+                </select>
+            </div>
+            <div class="screen">SCREEN</div>
+            <div class="seating-chart" id="seatingChart"></div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="seat available"></div>
+                    <span>Not Sat In</span>
+                </div>
+                <div class="legend-item">
+                    <div class="seat sat-in"></div>
+                    <span>Sat In</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-accessible-icon">♿</div>
+                    <span>Accessible</span>
+                </div>
             </div>
         </div>
     </div>
