@@ -111,6 +111,56 @@ function get34thSt1Layout() {
     ];
 }
 
+// Get 34th St auditorium 13 layout
+function get34thSt13Layout() {
+    return [
+        // Row A: 17 seats (A1-A17)
+        { pattern: Array(17).fill('normal') },
+        // Row B: 19 seats (B1-B19)
+        { pattern: Array(19).fill('normal') },
+        // Row C: 16 seats (C1-C16), C6-C10 are accessible
+        // Seats numbered right-to-left, so C6-C10 are indices 10, 9, 8, 7, 6
+        { pattern: (() => {
+            const seats = Array(16).fill('normal');
+            // Mark C6-C10 as accessible (indices 10, 9, 8, 7, 6 from right)
+            seats[10] = 'accessible'; // C6
+            seats[9] = 'accessible';  // C7
+            seats[8] = 'accessible';  // C8
+            seats[7] = 'accessible';  // C9
+            seats[6] = 'accessible';  // C10
+            return seats;
+        })() },
+        // Row D: 18 seats (D1-D18)
+        { pattern: Array(18).fill('normal') },
+        // Row E: 18 seats (E1-E18)
+        { pattern: Array(18).fill('normal') },
+        // Row F: 18 seats (F1-F18)
+        { pattern: Array(18).fill('normal') },
+        // Row G: 18 seats (G1-G18)
+        { pattern: Array(18).fill('normal') },
+        // Row H: 18 seats (H1-H18)
+        { pattern: Array(18).fill('normal') },
+        // Row I: 18 seats (I1-I18)
+        { pattern: Array(18).fill('normal') },
+        // Row J: 18 seats (J1-J18)
+        { pattern: Array(18).fill('normal') },
+        // Row K: 18 seats (K1-K18)
+        { pattern: Array(18).fill('normal') },
+        // Row L: 22 seats (L1-L22)
+        { pattern: Array(22).fill('normal') },
+        // Row M: 19 seats (M1-M19), M4-M13 are accessible
+        // Seats numbered right-to-left, so M4-M13 are indices 15 down to 6
+        { pattern: (() => {
+            const seats = Array(19).fill('normal');
+            // Mark M4-M13 as accessible (indices 15, 14, 13, 12, 11, 10, 9, 8, 7, 6 from right)
+            for (let i = 15; i >= 6; i--) {
+                seats[i] = 'accessible';
+            }
+            return seats;
+        })() }
+    ];
+}
+
 // Get Lincoln Sq auditorium 1 layout
 function getLincolnSq1Layout() {
     return {
@@ -538,6 +588,8 @@ function initializeFromParsedData(parsed) {
                 layout = getLincolnSq9Layout();
             } else if (is34thSt && theaterNum === '1') {
                 layout = get34thSt1Layout();
+            } else if (is34thSt && theaterNum === '13') {
+                layout = get34thSt13Layout();
             } else {
                 layout = standardLayout;
             }
@@ -761,7 +813,7 @@ function isLayoutUpdated(theaterLocationKey, auditorium) {
     
     if (isLincolnSq && (auditorium === '1' || auditorium === '9')) return true;
     if (is19thSt && auditorium === '6') return true;
-    if (is34thSt && auditorium === '1') return true;
+    if (is34thSt && (auditorium === '1' || auditorium === '13')) return true;
     
     return false;
 }
