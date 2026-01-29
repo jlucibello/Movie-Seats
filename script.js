@@ -111,6 +111,48 @@ function get34thSt1Layout() {
     ];
 }
 
+// Get 34th St auditorium 8 layout
+function get34thSt8Layout() {
+    return [
+        // Row A: 12 seats (A1-A12)
+        { pattern: Array(12).fill('normal') },
+        // Row B: 16 seats (B1-B16)
+        { pattern: Array(16).fill('normal') },
+        // Row C: 18 seats (C1-C18)
+        { pattern: Array(18).fill('normal') },
+        // Row D: 17 seats (D1-D17) with gap on the left
+        { pattern: (() => {
+            const seats = ['gap'];
+            seats.push(...Array(17).fill('normal'));
+            return seats;
+        })() },
+        // Row E: 17 seats (E1-E17) with gap on the left
+        { pattern: (() => {
+            const seats = ['gap'];
+            seats.push(...Array(17).fill('normal'));
+            return seats;
+        })() },
+        // Row F: 17 seats (F1-F17) with gap on the left
+        { pattern: (() => {
+            const seats = ['gap'];
+            seats.push(...Array(17).fill('normal'));
+            return seats;
+        })() },
+        // Row G: 17 seats (G1-G17) with gap on the left
+        { pattern: (() => {
+            const seats = ['gap'];
+            seats.push(...Array(17).fill('normal'));
+            return seats;
+        })() },
+        // Row H: 17 seats (H1-H17) with gap on the left
+        { pattern: (() => {
+            const seats = ['gap'];
+            seats.push(...Array(17).fill('normal'));
+            return seats;
+        })() }
+    ];
+}
+
 // Get 34th St auditorium 13 layout
 function get34thSt13Layout() {
     return [
@@ -587,6 +629,8 @@ function initializeFromParsedData(parsed) {
                 layout = getLincolnSq9Layout();
             } else if (is34thSt && theaterNum === '1') {
                 layout = get34thSt1Layout();
+            } else if (is34thSt && theaterNum === '8') {
+                layout = get34thSt8Layout();
             } else if (is34thSt && theaterNum === '13') {
                 layout = get34thSt13Layout();
             } else {
@@ -812,7 +856,7 @@ function isLayoutUpdated(theaterLocationKey, auditorium) {
     
     if (isLincolnSq && (auditorium === '1' || auditorium === '9')) return true;
     if (is19thSt && auditorium === '6') return true;
-    if (is34thSt && (auditorium === '1' || auditorium === '13')) return true;
+    if (is34thSt && (auditorium === '1' || auditorium === '8' || auditorium === '13')) return true;
     
     return false;
 }
