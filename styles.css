@@ -8,8 +8,9 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     min-height: 100vh;
-    padding: 20px;
+    padding: clamp(10px, 1.5vw, 20px);
     margin: 0;
+    overflow-x: auto;
 }
 
 /* Home Page Styles */
@@ -122,24 +123,25 @@ body {
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    padding-top: 20px;
+    padding-top: clamp(10px, 1.5vw, 20px);
 }
 
 .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: min(95vw, 1200px);
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
+    padding: 0 clamp(10px, 2vw, 20px);
 }
 
 .home-icon {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    width: 40px;
-    height: 40px;
+    top: clamp(10px, 1.5vw, 20px);
+    left: clamp(10px, 1.5vw, 20px);
+    width: clamp(32px, 4vw, 40px);
+    height: clamp(32px, 4vw, 40px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -162,36 +164,40 @@ body {
     font-weight: bold;
     font-style: italic;
     text-align: center;
-    margin-bottom: 15px;
-    font-size: 0.95rem;
+    margin-bottom: clamp(10px, 1.5vw, 15px);
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
 }
 
 .theater-selector {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding: 15px 25px;
+    gap: clamp(10px, 1.5vw, 15px);
+    margin-bottom: clamp(15px, 2vw, 20px);
+    padding: clamp(10px, 1.5vw, 15px) clamp(15px, 2vw, 25px);
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     backdrop-filter: blur(10px);
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .theater-selector label {
     color: #d4af37;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+    white-space: nowrap;
 }
 
 .theater-selector select {
-    padding: 8px 15px;
+    padding: clamp(6px, 0.8vw, 8px) clamp(12px, 1.5vw, 15px);
     border-radius: 5px;
     border: 2px solid #d4af37;
     background: rgba(26, 26, 46, 0.9);
     color: white;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 1.2vw, 0.95rem);
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: clamp(120px, 15vw, 180px);
 }
 
 .theater-selector select:hover {
@@ -205,65 +211,55 @@ body {
 }
 
 .screen {
-    background: none;
-    color: #d4af37;
-    font-size: 1.5rem;
+    background: linear-gradient(to right, #d4af37 0%, #f4d03f 20%, #f4d03f 80%, #d4af37 100%);
+    color: white;
+    font-size: clamp(1.2rem, 3vw, 2rem);
     font-weight: 600;
     letter-spacing: 0.2em;
-    padding: 0;
-    margin-bottom: 30px;
+    padding: clamp(15px, 2vw, 20px) clamp(30px, 5vw, 60px) clamp(40px, 5vw, 60px) clamp(30px, 5vw, 60px);
+    margin-bottom: clamp(20px, 3vw, 30px);
     text-align: center;
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4), 0 0 40px rgba(212, 175, 55, 0.2);
     width: 100%;
-    max-width: 900px;
+    max-width: min(90vw, 900px);
     position: relative;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    clip-path: ellipse(100% 60px at 50% 0%);
+    border-radius: 0;
     overflow: visible;
 }
 
-.screen-curve {
+.screen::after {
+    content: '';
     position: absolute;
-    top: 0;
+    bottom: -20px;
     left: 0;
-    width: 100%;
-    height: 60px;
-    z-index: 1;
-}
-
-.screen-curve path {
-    filter: drop-shadow(0 4px 15px rgba(212, 175, 55, 0.6)) drop-shadow(0 0 30px rgba(212, 175, 55, 0.3));
-}
-
-.screen-text {
-    position: relative;
-    z-index: 2;
-    color: #d4af37;
-    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.5);
+    right: 0;
+    height: 40px;
+    background: radial-gradient(ellipse 100% 20px at 50% 0%, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+    pointer-events: none;
 }
 
 .seating-chart {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: clamp(6px, 0.8vw, 8px);
     width: 100%;
-    max-width: 900px;
+    max-width: min(90vw, 900px);
     align-items: center;
 }
 
 .row {
     display: flex;
     justify-content: center;
-    gap: 4px;
+    gap: clamp(3px, 0.5vw, 4px);
     position: relative;
 }
 
 .row-label {
     color: #d4af37;
     font-weight: 600;
-    font-size: 0.9rem;
-    width: 25px;
+    font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+    width: clamp(20px, 3vw, 25px);
     text-align: center;
     display: flex;
     align-items: center;
@@ -272,21 +268,21 @@ body {
 
 .row-label-left {
     position: absolute;
-    left: -30px;
+    left: clamp(-25px, -3vw, -30px);
     top: 50%;
     transform: translateY(-50%);
 }
 
 .row-label-right {
     position: absolute;
-    right: -30px;
+    right: clamp(-25px, -3vw, -30px);
     top: 50%;
     transform: translateY(-50%);
 }
 
 .seat {
-    width: 28px;
-    height: 28px;
+    width: clamp(20px, 2.5vw, 28px);
+    height: clamp(20px, 2.5vw, 28px);
     border-radius: 4px 4px 2px 2px;
     cursor: pointer;
     position: relative;
@@ -318,13 +314,13 @@ body {
 .seat.accessible::after {
     content: '♿';
     position: absolute;
-    top: -8px;
-    right: -8px;
-    font-size: 12px;
+    top: clamp(-6px, -0.8vw, -8px);
+    right: clamp(-6px, -0.8vw, -8px);
+    font-size: clamp(10px, 1.2vw, 12px);
     background: #d4af37;
     border-radius: 50%;
-    width: 18px;
-    height: 18px;
+    width: clamp(14px, 1.8vw, 18px);
+    height: clamp(14px, 1.8vw, 18px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -338,7 +334,7 @@ body {
 }
 
 .seat-number {
-    font-size: 0.65rem;
+    font-size: clamp(0.5rem, 1vw, 0.65rem);
     font-weight: 600;
     color: rgba(0, 0, 0, 0.6);
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
@@ -362,9 +358,9 @@ body {
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.95);
     color: white;
-    padding: 10px 15px;
+    padding: clamp(8px, 1vw, 10px) clamp(12px, 1.5vw, 15px);
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: clamp(0.7rem, 1.1vw, 0.85rem);
     white-space: nowrap;
     z-index: 1000;
     opacity: 0;
@@ -372,8 +368,8 @@ body {
     transition: opacity 0.2s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(212, 175, 55, 0.3);
-    min-width: 200px;
-    max-width: 300px;
+    min-width: clamp(150px, 20vw, 200px);
+    max-width: clamp(250px, 30vw, 300px);
 }
 
 .seat-tooltip::after {
@@ -413,8 +409,8 @@ body {
 
 .legend {
     display: flex;
-    gap: 30px;
-    margin-top: 40px;
+    gap: clamp(15px, 3vw, 30px);
+    margin-top: clamp(25px, 4vw, 40px);
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -422,9 +418,9 @@ body {
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: clamp(8px, 1.2vw, 10px);
     color: white;
-    font-size: 0.9rem;
+    font-size: clamp(0.75rem, 1.2vw, 0.9rem);
 }
 
 .legend-item .seat {
@@ -437,12 +433,12 @@ body {
 }
 
 .legend-accessible-icon {
-    width: 28px;
-    height: 28px;
+    width: clamp(20px, 2.5vw, 28px);
+    height: clamp(20px, 2.5vw, 28px);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: clamp(12px, 1.5vw, 16px);
     background: #d4af37;
     border-radius: 50%;
     border: 2px solid white;
@@ -452,8 +448,9 @@ body {
 
 .seat-visit-table {
     width: 100%;
+    max-width: min(90vw, 900px);
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: clamp(15px, 2vw, 20px);
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 8px;
@@ -465,18 +462,18 @@ body {
 }
 
 .seat-visit-table th {
-    padding: 15px;
+    padding: clamp(10px, 1.5vw, 15px);
     text-align: left;
     color: #d4af37;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
     border-bottom: 2px solid rgba(212, 175, 55, 0.5);
 }
 
 .seat-visit-table td {
-    padding: 12px 15px;
+    padding: clamp(8px, 1.2vw, 12px) clamp(10px, 1.5vw, 15px);
     color: white;
-    font-size: 0.9rem;
+    font-size: clamp(0.75rem, 1.1vw, 0.9rem);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -486,4 +483,49 @@ body {
 
 .seat-visit-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+    .theater-selector {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        max-width: 90vw;
+    }
+    
+    .theater-selector label {
+        margin-bottom: 5px;
+    }
+    
+    .seating-chart {
+        max-width: 95vw;
+    }
+    
+    .row-label-left,
+    .row-label-right {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .screen {
+        font-size: 1rem;
+        padding: 10px 20px 30px 20px;
+    }
+    
+    .seat {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .seat-number {
+        font-size: 0.45rem;
+    }
+    
+    .legend {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
 }
