@@ -118,12 +118,11 @@ function get34thSt13Layout() {
         { pattern: Array(17).fill('normal') },
         // Row B: 19 seats (B1-B19)
         { pattern: Array(19).fill('normal') },
-        // Row C: 16 seats (C1-C16), C6-C10 are accessible
-        // Seats numbered right-to-left, so C6-C10 are indices 10, 9, 8, 7, 6
+        // Row C: 16 seats (C1-C16), C7-C10 are accessible
+        // Seats numbered right-to-left, so C7-C10 are indices 9, 8, 7, 6
         { pattern: (() => {
             const seats = Array(16).fill('normal');
-            // Mark C6-C10 as accessible (indices 10, 9, 8, 7, 6 from right)
-            seats[10] = 'accessible'; // C6
+            // Mark C7-C10 as accessible (indices 9, 8, 7, 6 from right)
             seats[9] = 'accessible';  // C7
             seats[8] = 'accessible';  // C8
             seats[7] = 'accessible';  // C9
