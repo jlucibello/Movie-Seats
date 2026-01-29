@@ -42,10 +42,10 @@ function parseCSVData(csvText) {
         const movie = values[4] ? values[4].trim() : '';
         const format = values[5] ? values[5].trim() : '';
         // For Google Sheets, column 6 is "Seat Rating" and column 7 is "Additional Notes".
-        // We append the rating to the notes (if present) so the existing UI continues to work.
-        let notes = '';
         const rating = values[6] ? values[6].trim() : '';
-        const additionalNotes = values[7] ? values[7].trim() : values[6] ? values[6].trim() : '';
+        const additionalNotes = values[7] ? values[7].trim() : '';
+        // Keep notes for backward compatibility (combine rating and additionalNotes)
+        let notes = '';
         if (rating) {
             notes = rating;
         }
@@ -68,12 +68,12 @@ function parseCSVData(csvText) {
         const theaterNum = theaterMatch ? theaterMatch[0] : theater;
         theaterMap[locationKey].add(theaterNum);
         
-        // Store seat visit data
+        // Store seat visit data with separate rating and additionalNotes fields
         const key = `${locationKey}-${theaterNum}-${row}-${seatNum}`;
         if (!seatVisits[key]) {
             seatVisits[key] = [];
         }
-        seatVisits[key].push({ movie, format, notes });
+        seatVisits[key].push({ movie, format, notes, rating, additionalNotes, row, seat: seatNum });
     }
     
     return { seatVisits, locations: Array.from(locations), theaterMap };
@@ -810,12 +810,24 @@ function createSeat(row, seatNumber, accessible = false) {
         if (visitData && visitData.length > 0) {
             seat.setAttribute('data-tooltip', 'true');
             const tooltipText = visitData.map(v => {
-                let text = `${v.movie} (${v.format})`;
-                if (v.notes) {
-                    text += ` - ${v.notes}`;
+                let text = `${v.movie || ''}\n`;
+                text += `${v.row || row}${v.seat || seatNumber}\n`;
+                text += `Format: ${v.format || ''}\n`;
+                const rating = v.rating && v.rating.trim() ? v.rating : 'None';
+                let ratingEmoji = '';
+                if (rating.toLowerCase() === 'good') {
+                    ratingEmoji = ' 🟢';
+                } else if (rating.toLowerCase() === 'okay') {
+                    ratingEmoji = ' 🟡';
+                } else if (rating.toLowerCase() === 'bad') {
+                    ratingEmoji = ' 🔴';
+                }
+                text += `Seat Rating: ${rating}${ratingEmoji}\n`;
+                if (v.additionalNotes && v.additionalNotes.trim()) {
+                    text += `Additional Notes: ${v.additionalNotes}`;
                 }
                 return text;
-            }).join('\n');
+            }).join('\n\n');
             seat.setAttribute('title', tooltipText);
             seat.setAttribute('data-movies', JSON.stringify(visitData));
         }
@@ -829,13 +841,25 @@ function createSeat(row, seatNumber, accessible = false) {
     seat.appendChild(seatNumberLabel);
     
     // Add tooltip element for hover
-    if (visitData && visitData.length > 0) {
+    if (visitData && visitData.length > 0 && hasBeenSatIn) {
         const tooltip = document.createElement('div');
         tooltip.className = 'seat-tooltip';
         const tooltipContent = visitData.map(v => {
-            let text = `<strong>${v.movie}</strong><br>${v.format}`;
-            if (v.notes) {
-                text += `<br><em>${v.notes}</em>`;
+            let text = `<strong>${v.movie || ''}</strong><br>`;
+            text += `${v.row || row}${v.seat || seatNumber}<br>`;
+            text += `Format: ${v.format || ''}<br>`;
+            const rating = v.rating && v.rating.trim() ? v.rating : 'None';
+            let ratingEmoji = '';
+            if (rating.toLowerCase() === 'good') {
+                ratingEmoji = ' 🟢';
+            } else if (rating.toLowerCase() === 'okay') {
+                ratingEmoji = ' 🟡';
+            } else if (rating.toLowerCase() === 'bad') {
+                ratingEmoji = ' 🔴';
+            }
+            text += `Seat Rating: ${rating}${ratingEmoji}<br>`;
+            if (v.additionalNotes && v.additionalNotes.trim()) {
+                text += `Additional Notes: ${v.additionalNotes}<br>`;
             }
             return `<div class="tooltip-entry">${text}</div>`;
         }).join('');
