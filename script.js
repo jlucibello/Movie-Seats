@@ -962,8 +962,6 @@ function createSeat(row, seatNumber, accessible = false) {
         seat.appendChild(tooltip);
     }
     
-    seat.addEventListener('click', () => toggleSeat(row, seatNumber));
-    
     return seat;
 }
 
