@@ -125,17 +125,8 @@ body {
     padding-top: 20px;
 }
 
-.container {
-    width: 100%;
-    max-width: 1200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
-
 .home-icon {
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 20px;
     width: 40px;
@@ -149,6 +140,18 @@ body {
     transition: all 0.2s ease;
     color: #d4af37;
     z-index: 1000;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 .home-icon:hover {
