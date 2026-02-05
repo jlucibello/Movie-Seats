@@ -457,6 +457,39 @@ function getLincolnSq1Layout() {
     };
 }
 
+// Get Lincoln Sq auditorium 13 layout
+function getLincolnSq13Layout() {
+    return {
+        rows: [
+        // Row A: 33 seats (A1-A33)
+        { pattern: Array(33).fill('normal') },
+        // Row B: 35 seats (B1-B35)
+        { pattern: Array(35).fill('normal') },
+        // Row C: 38 seats (C1-C38)
+        { pattern: Array(38).fill('normal') },
+        // Row D: 41 seats (D1-D41)
+        { pattern: Array(41).fill('normal') },
+        // Row E: 42 seats (E1-E42)
+        { pattern: Array(42).fill('normal') },
+        // Row F: 42 seats (F1-F42)
+        { pattern: Array(42).fill('normal') },
+        // Row G: 42 seats (G1-G42)
+        { pattern: Array(42).fill('normal') },
+        // Row H: 42 seats (H1-H42)
+        { pattern: Array(42).fill('normal') },
+        // Row J: 42 seats (J1-J42)
+        { pattern: Array(42).fill('normal') },
+        // Row K: 42 seats (K1-K42)
+        { pattern: Array(42).fill('normal') },
+        // Row L: 42 seats (L1-L42)
+        { pattern: Array(42).fill('normal') },
+        // Row M: 39 seats (M1-M39)
+        { pattern: Array(39).fill('normal') }
+        ],
+        rowLetters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M'] // Skip row I
+    };
+}
+
 // Get Lincoln Sq auditorium 9 layout
 function getLincolnSq9Layout() {
     return [
@@ -627,6 +660,8 @@ function initializeFromParsedData(parsed) {
                 layout = getLincolnSq1Layout();
             } else if (isLincolnSq && theaterNum === '9') {
                 layout = getLincolnSq9Layout();
+            } else if (isLincolnSq && theaterNum === '13') {
+                layout = getLincolnSq13Layout();
             } else if (is34thSt && theaterNum === '1') {
                 layout = get34thSt1Layout();
             } else if (is34thSt && theaterNum === '8') {
