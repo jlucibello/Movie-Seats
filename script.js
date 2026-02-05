@@ -461,8 +461,17 @@ function getLincolnSq1Layout() {
 function getLincolnSq13Layout() {
     return {
         rows: [
-        // Row A: 33 seats (A1-A33)
-        { pattern: Array(33).fill('normal') },
+        // Row A: 33 seats (A1-A33), A28-A31 are accessible
+        // Seats numbered right-to-left, so A28-A31 are indices 5, 4, 3, 2
+        { pattern: (() => {
+            const seats = Array(33).fill('normal');
+            // Mark A28-A31 as accessible (indices 5, 4, 3, 2 from left)
+            seats[5] = 'accessible';  // A28
+            seats[4] = 'accessible';  // A29
+            seats[3] = 'accessible';  // A30
+            seats[2] = 'accessible';  // A31
+            return seats;
+        })() },
         // Row B: 35 seats (B1-B35)
         { pattern: Array(35).fill('normal') },
         // Row C: 38 seats (C1-C38)
@@ -483,8 +492,30 @@ function getLincolnSq13Layout() {
         { pattern: Array(42).fill('normal') },
         // Row L: 42 seats (L1-L42)
         { pattern: Array(42).fill('normal') },
-        // Row M: 39 seats (M1-M39)
-        { pattern: Array(39).fill('normal') }
+        // Row M: 39 seats (M1-M39), M10-M13, M18-M21, M26-M29 are accessible
+        // Seats numbered right-to-left, so:
+        // M10-M13 are indices 29, 28, 27, 26
+        // M18-M21 are indices 21, 20, 19, 18
+        // M26-M29 are indices 13, 12, 11, 10
+        { pattern: (() => {
+            const seats = Array(39).fill('normal');
+            // Mark M10-M13 as accessible (indices 29, 28, 27, 26 from left)
+            seats[29] = 'accessible';  // M10
+            seats[28] = 'accessible';  // M11
+            seats[27] = 'accessible';  // M12
+            seats[26] = 'accessible';  // M13
+            // Mark M18-M21 as accessible (indices 21, 20, 19, 18 from left)
+            seats[21] = 'accessible';  // M18
+            seats[20] = 'accessible';  // M19
+            seats[19] = 'accessible';  // M20
+            seats[18] = 'accessible';  // M21
+            // Mark M26-M29 as accessible (indices 13, 12, 11, 10 from left)
+            seats[13] = 'accessible';  // M26
+            seats[12] = 'accessible';  // M27
+            seats[11] = 'accessible';  // M28
+            seats[10] = 'accessible';  // M29
+            return seats;
+        })() }
         ],
         rowLetters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M'] // Skip row I
     };
@@ -890,7 +921,7 @@ function isLayoutUpdated(theaterLocationKey, auditorium) {
     const is19thSt = key.includes('19th') && key.includes('st');
     const is34thSt = key.includes('34th') && key.includes('st');
     
-    if (isLincolnSq && (auditorium === '1' || auditorium === '9')) return true;
+    if (isLincolnSq && (auditorium === '1' || auditorium === '9' || auditorium === '13')) return true;
     if (is19thSt && auditorium === '6') return true;
     if (is34thSt && (auditorium === '1' || auditorium === '8' || auditorium === '13')) return true;
     
