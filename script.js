@@ -783,7 +783,8 @@ function getSeatVisitDataForCurrentAuditorium() {
                     seat: seatNum,
                     movie: visit.movie,
                     format: visit.format,
-                    notes: visit.notes
+                    additionalNotes: visit.additionalNotes || '',
+                    rating: visit.rating || ''
                 });
             });
         }
@@ -1007,7 +1008,7 @@ function renderSeatVisitTable() {
     // Create header
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    const headers = ['Row', 'Seat', 'Movie', 'Format', 'Notes'];
+    const headers = ['Row', 'Seat', 'Movie', 'Format', 'Seat Rating', 'Notes'];
     headers.forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = headerText;
@@ -1037,8 +1038,12 @@ function renderSeatVisitTable() {
         formatCell.textContent = visit.format;
         row.appendChild(formatCell);
         
+        const ratingCell = document.createElement('td');
+        ratingCell.textContent = visit.rating || '';
+        row.appendChild(ratingCell);
+        
         const notesCell = document.createElement('td');
-        notesCell.textContent = visit.notes || '';
+        notesCell.textContent = visit.additionalNotes || '';
         row.appendChild(notesCell);
         
         tbody.appendChild(row);
