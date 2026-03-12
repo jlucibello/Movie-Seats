@@ -5,9 +5,53 @@ const GOOGLE_SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1v
 function parseCSVData(csvText) {
     const lines = csvText.trim().split('\n');
     const headers = lines[0].split(',');
+    
+    // Build a map from normalized header name -> index so we can
+    // tolerate column reordering and added/removed columns.
+    const headerIndex = {};
+    headers.forEach((h, idx) => {
+        const key = h.trim().toLowerCase();
+        if (key) {
+            headerIndex[key] = idx;
+        }
+    });
+    
+    const getIndex = (...names) => {
+        for (const name of names) {
+            const key = name.trim().toLowerCase();
+            if (headerIndex.hasOwnProperty(key)) {
+                return headerIndex[key];
+            }
+        }
+        return -1;
+    };
+    
+    // Resolve indices based on current header row from the sheet
+    const idxWatchDate = getIndex('watch date', 'watched date', 'date');
+    const idxLocation = getIndex('theater', 'location', 'theater name');
+    const idxAuditorium = getIndex('auditorium', 'auditorium #', 'theater #');
+    const idxRow = getIndex('row');
+    const idxSeat = getIndex('seat', 'seat #', 'seat number');
+    const idxMovie = getIndex('movie', 'film', 'movie title');
+    const idxFormat = getIndex('format', 'movie format');
+    const idxRating = getIndex('seat rating', 'rating');
+    const idxNotes = getIndex('additional notes', 'notes', 'seat notes');
+
+    // Fallback positions if specific headers are not found
+    const effIdxWatchDate = idxWatchDate >= 0 ? idxWatchDate : 0;
+    const effIdxLocation = idxLocation >= 0 ? idxLocation : 1;
+    const effIdxAuditorium = idxAuditorium >= 0 ? idxAuditorium : 2;
+    const effIdxRow = idxRow >= 0 ? idxRow : 3;
+    const effIdxSeat = idxSeat >= 0 ? idxSeat : 4;
+    const effIdxMovie = idxMovie >= 0 ? idxMovie : 5;
+    const effIdxFormat = idxFormat >= 0 ? idxFormat : 6;
+    const effIdxRating = idxRating >= 0 ? idxRating : 7;
+    const effIdxNotes = idxNotes >= 0 ? idxNotes : 8;
     const seatVisits = {};
     const locations = new Set();
     const theaterMap = {};
+    // Tracks visits that have a location but no specific auditorium / seat
+    const locationOnlyVisits = {};
     
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i];
@@ -31,19 +75,17 @@ function parseCSVData(csvText) {
         }
         values.push(current.trim());
         
-        if (values.length < 4) continue;
-        
-        // Column 0: full theater name from the CSV / Google Sheet (e.g., "AMC Lincoln Square 13")
-        // Column 1: auditorium (e.g., "Theater 1")
-        const location = values[0].trim();
-        const theater = values[1].trim();
-        const row = values[2].trim().toUpperCase(); // Normalize to uppercase
-        const seatNum = parseInt(values[3].trim());
-        const movie = values[4] ? values[4].trim() : '';
-        const format = values[5] ? values[5].trim() : '';
-        // For Google Sheets, column 6 is "Seat Rating" and column 7 is "Additional Notes".
-        const rating = values[6] ? values[6].trim() : '';
-        const additionalNotes = values[7] ? values[7].trim() : '';
+        // Pull values using resolved indices with sensible fallbacks,
+        // so we stay robust to both header renames and column reordering.
+        const watchDate = values[effIdxWatchDate] !== undefined ? values[effIdxWatchDate].trim() : '';
+        const location = values[effIdxLocation] !== undefined ? values[effIdxLocation].trim() : '';
+        const theater = values[effIdxAuditorium] !== undefined ? values[effIdxAuditorium].trim() : '';
+        const row = values[effIdxRow] !== undefined ? values[effIdxRow].trim().toUpperCase() : ''; // Normalize to uppercase
+        const seatNum = values[effIdxSeat] !== undefined ? parseInt(values[effIdxSeat].trim()) : NaN;
+        const movie = values[effIdxMovie] !== undefined ? values[effIdxMovie].trim() : '';
+        const format = values[effIdxFormat] !== undefined ? values[effIdxFormat].trim() : '';
+        const rating = values[effIdxRating] !== undefined ? values[effIdxRating].trim() : '';
+        const additionalNotes = values[effIdxNotes] !== undefined ? values[effIdxNotes].trim() : '';
         // Keep notes for backward compatibility (combine rating and additionalNotes)
         let notes = '';
         if (rating) {
@@ -53,8 +95,11 @@ function parseCSVData(csvText) {
             notes = notes ? `${notes} - ${additionalNotes}` : additionalNotes;
         }
         
-        if (!location || !theater || !row || isNaN(seatNum)) continue;
+        // If we don't have at least a location, skip this row entirely
+        if (!location) continue;
         
+        // Always record the location so it appears in the theater list,
+        // even if there is no auditorium / seat data.
         locations.add(location);
         
         // Create location key
@@ -63,20 +108,38 @@ function parseCSVData(csvText) {
             theaterMap[locationKey] = new Set();
         }
         
-        // Extract theater number
-        const theaterMatch = theater.match(/\d+/);
-        const theaterNum = theaterMatch ? theaterMatch[0] : theater;
-        theaterMap[locationKey].add(theaterNum);
-        
-        // Store seat visit data with separate rating and additionalNotes fields
-        const key = `${locationKey}-${theaterNum}-${row}-${seatNum}`;
-        if (!seatVisits[key]) {
-            seatVisits[key] = [];
+        // Only record auditorium and seats when we have a non-empty theater value
+        if (theater) {
+            // Extract theater number
+            const theaterMatch = theater.match(/\d+/);
+            const theaterNum = theaterMatch ? theaterMatch[0] : theater;
+            theaterMap[locationKey].add(theaterNum);
+            
+            // Only store seat visit data when we have a valid row and seat number
+            if (row && !isNaN(seatNum)) {
+                const key = `${locationKey}-${theaterNum}-${row}-${seatNum}`;
+                if (!seatVisits[key]) {
+                    seatVisits[key] = [];
+                }
+                seatVisits[key].push({ movie, format, notes, rating, additionalNotes, watchDate, row, seat: seatNum });
+            }
+        } else {
+            // No specific auditorium; track these visits by location only
+            if (!locationOnlyVisits[locationKey]) {
+                locationOnlyVisits[locationKey] = [];
+            }
+            locationOnlyVisits[locationKey].push({
+                movie,
+                format,
+                notes,
+                rating,
+                additionalNotes,
+                watchDate
+            });
         }
-        seatVisits[key].push({ movie, format, notes, rating, additionalNotes, row, seat: seatNum });
     }
     
-    return { seatVisits, locations: Array.from(locations), theaterMap };
+    return { seatVisits, locations: Array.from(locations), theaterMap, locationOnlyVisits };
 }
 
 // Get 34th St auditorium 1 layout
@@ -661,10 +724,15 @@ const standardLayout = getStandardLayout();
 let theaters = {};
 let currentTheater = '';
 let currentAuditorium = '';
+// Visits that belong to a location but not a specific auditorium
+let locationOnlyVisits = {};
+
+// Pseudo-auditorium ID used when a location has visits but no specific auditorium
+const NO_AUDITORIUM_ID = 'no-auditorium';
 
 // Build theaters object and initialize app from parsed CSV data
 function initializeFromParsedData(parsed) {
-    const { seatVisits, locations, theaterMap } = parsed;
+    const { seatVisits, locations, theaterMap, locationOnlyVisits: parsedLocationOnlyVisits } = parsed;
     
     // Build theaters object from CSV data
     theaters = {};
@@ -678,6 +746,7 @@ function initializeFromParsedData(parsed) {
         
         const locationNameLower = location.toLowerCase();
         const theaterNums = Array.from(theaterMap[locationKey] || []).sort((a, b) => parseInt(a) - parseInt(b));
+        
         theaterNums.forEach(theaterNum => {
             // Use specific layouts for certain theaters
             let layout;
@@ -707,10 +776,20 @@ function initializeFromParsedData(parsed) {
                 layout: layout
             };
         });
+        
+        // If this location has visits with no specific auditorium, add a dynamic option
+        const locationOnly = parsedLocationOnlyVisits[locationKey] || [];
+        if (locationOnly.length > 0 && theaterNums.length === 0) {
+            theaters[locationKey].auditoriums[NO_AUDITORIUM_ID] = {
+                name: 'No theater selected',
+                layout: null
+            };
+        }
     });
     
     // Store seat visit data globally for other functions
     window.seatVisits = seatVisits;
+    locationOnlyVisits = parsedLocationOnlyVisits || {};
     
     // Current theater and auditorium (default to first location and theater)
     const firstLocation = locations[0] ? locations[0].toLowerCase().replace(/\s+/g, '-') : 'lincoln-sq';
@@ -849,6 +928,7 @@ function getSeatVisitDataForCurrentAuditorium() {
                     seat: seatNum,
                     movie: visit.movie,
                     format: visit.format,
+                        watchDate: visit.watchDate || '',
                     additionalNotes: visit.additionalNotes || '',
                     rating: visit.rating || ''
                 });
@@ -865,6 +945,18 @@ function getSeatVisitDataForCurrentAuditorium() {
     });
     
     return visits;
+}
+
+// Get all location-only visit data for the current theater (no specific auditorium)
+function getLocationOnlyVisitDataForCurrentTheater() {
+    const locationKey = currentTheater;
+    return (locationOnlyVisits[locationKey] || []).map(visit => ({
+        movie: visit.movie,
+        format: visit.format,
+        watchDate: visit.watchDate || '',
+        rating: visit.rating || '',
+        additionalNotes: visit.additionalNotes || ''
+    }));
 }
 
 // Get current seat layout
@@ -972,8 +1064,15 @@ function createSeat(row, seatNumber, accessible = false) {
         if (visitData && visitData.length > 0) {
             seat.setAttribute('data-tooltip', 'true');
             const tooltipText = visitData.map(v => {
+                // 1) Movie Name
                 let text = `${v.movie || ''}\n`;
+                // 2) Watch Date
+                if (v.watchDate && v.watchDate.trim()) {
+                    text += `Watch Date: ${v.watchDate}\n`;
+                }
+                // 3) Seat (row + seat)
                 text += `${v.row || row}${v.seat || seatNumber}\n`;
+                // 4) Format
                 text += `Format: ${v.format || ''}\n`;
                 const rating = v.rating && v.rating.trim() ? v.rating : 'None';
                 let ratingEmoji = '';
@@ -1007,8 +1106,16 @@ function createSeat(row, seatNumber, accessible = false) {
         const tooltip = document.createElement('div');
         tooltip.className = 'seat-tooltip';
         const tooltipContent = visitData.map(v => {
-            let text = `<strong>${v.movie || ''}</strong><br>`;
+            let text = '';
+            // 1) Movie Name
+            text += `<strong>${v.movie || ''}</strong><br>`;
+            // 2) Watch Date
+            if (v.watchDate && v.watchDate.trim()) {
+                text += `Watch Date: ${v.watchDate}<br>`;
+            }
+            // 3) Seat (row + seat)
             text += `${v.row || row}${v.seat || seatNumber}<br>`;
+            // 4) Format
             text += `Format: ${v.format || ''}<br>`;
             const rating = v.rating && v.rating.trim() ? v.rating : 'None';
             let ratingEmoji = '';
@@ -1074,7 +1181,7 @@ function renderSeatVisitTable() {
     // Create header
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    const headers = ['Row', 'Seat', 'Movie', 'Format', 'Seat Rating', 'Notes'];
+    const headers = ['Watch Date', 'Row', 'Seat', 'Movie', 'Format', 'Seat Rating', 'Notes'];
     headers.forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = headerText;
@@ -1087,6 +1194,10 @@ function renderSeatVisitTable() {
     const tbody = document.createElement('tbody');
     visits.forEach(visit => {
         const row = document.createElement('tr');
+        
+        const watchDateCell = document.createElement('td');
+        watchDateCell.textContent = visit.watchDate || '';
+        row.appendChild(watchDateCell);
         
         const rowCell = document.createElement('td');
         rowCell.textContent = visit.row;
@@ -1119,10 +1230,83 @@ function renderSeatVisitTable() {
     chart.appendChild(table);
 }
 
+// Render all visits for a location that has no specific auditorium
+function renderLocationOnlyVisitTable() {
+    const chart = document.getElementById('seatingChart');
+    chart.innerHTML = '';
+    
+    // Hide screen and legend when showing a simple table
+    const screen = document.querySelector('.screen');
+    if (screen) {
+        screen.style.display = 'none';
+    }
+    const legend = document.querySelector('.legend');
+    if (legend) {
+        legend.style.display = 'none';
+    }
+    
+    const visits = getLocationOnlyVisitDataForCurrentTheater();
+    
+    if (visits.length === 0) {
+        chart.innerHTML = '<p style="color: white; text-align: center; padding: 40px;">No visit data available for this location.</p>';
+        return;
+    }
+    
+    const table = document.createElement('table');
+    table.className = 'seat-visit-table';
+    
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    const headers = ['Watch Date', 'Movie', 'Format', 'Seat Rating', 'Notes'];
+    headers.forEach(headerText => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = document.createElement('tbody');
+    visits.forEach(visit => {
+        const row = document.createElement('tr');
+        
+        const watchDateCell = document.createElement('td');
+        watchDateCell.textContent = visit.watchDate || '';
+        row.appendChild(watchDateCell);
+        
+        const movieCell = document.createElement('td');
+        movieCell.textContent = visit.movie;
+        row.appendChild(movieCell);
+        
+        const formatCell = document.createElement('td');
+        formatCell.textContent = visit.format;
+        row.appendChild(formatCell);
+        
+        const ratingCell = document.createElement('td');
+        ratingCell.textContent = visit.rating || '';
+        row.appendChild(ratingCell);
+        
+        const notesCell = document.createElement('td');
+        notesCell.textContent = visit.additionalNotes || '';
+        row.appendChild(notesCell);
+        
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    
+    chart.appendChild(table);
+}
+
 // Render the seating chart
 function renderSeatingChart() {
     const chart = document.getElementById('seatingChart');
     chart.innerHTML = '';
+    
+    // Special case: "No theater selected" pseudo-auditorium shows location-only visits
+    if (currentAuditorium === NO_AUDITORIUM_ID) {
+        renderLocationOnlyVisitTable();
+        return;
+    }
     
     // If using standard layout, show table instead
     if (usesStandardLayout()) {
