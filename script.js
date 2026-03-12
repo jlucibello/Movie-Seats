@@ -1390,19 +1390,34 @@ function renderSeatingChart() {
 function showHomePage() {
     const homePage = document.getElementById('homePage');
     const seatingPage = document.getElementById('seatingPage');
-    if (homePage && seatingPage) {
+    const ticketStubsPage = document.getElementById('ticketStubsPage');
+    if (homePage && seatingPage && ticketStubsPage) {
         homePage.style.display = 'flex';
         seatingPage.style.display = 'none';
+        ticketStubsPage.style.display = 'none';
     }
 }
 
 function showSeatingPage() {
     const homePage = document.getElementById('homePage');
     const seatingPage = document.getElementById('seatingPage');
-    if (homePage && seatingPage) {
+    const ticketStubsPage = document.getElementById('ticketStubsPage');
+    if (homePage && seatingPage && ticketStubsPage) {
         homePage.style.display = 'none';
         seatingPage.style.display = 'block';
+        ticketStubsPage.style.display = 'none';
         renderSeatingChart();
+    }
+}
+
+function showTicketStubsPage() {
+    const homePage = document.getElementById('homePage');
+    const seatingPage = document.getElementById('seatingPage');
+    const ticketStubsPage = document.getElementById('ticketStubsPage');
+    if (homePage && seatingPage && ticketStubsPage) {
+        homePage.style.display = 'none';
+        seatingPage.style.display = 'none';
+        ticketStubsPage.style.display = 'flex';
     }
 }
 
@@ -1484,6 +1499,10 @@ function init() {
     
     // Initialize home page
     initHomePageSelectors();
+    const ticketStubsButton = document.getElementById('ticketStubsButton');
+    if (ticketStubsButton) {
+        ticketStubsButton.addEventListener('click', showTicketStubsPage);
+    }
     
     // Set up seating page theater dropdown
     const theaterSelect = document.getElementById('theaterSelect');
@@ -1506,10 +1525,14 @@ function init() {
         auditoriumSelect.addEventListener('change', handleAuditoriumChange);
     }
     
-    // Set up home icon
+    // Set up navigation home icons
     const homeIcon = document.getElementById('homeIcon');
     if (homeIcon) {
         homeIcon.addEventListener('click', showHomePage);
+    }
+    const ticketStubsHomeIcon = document.getElementById('ticketStubsHomeIcon');
+    if (ticketStubsHomeIcon) {
+        ticketStubsHomeIcon.addEventListener('click', showHomePage);
     }
     
     // Start on home page

@@ -9,23 +9,46 @@
 <body>
     <!-- Home Page -->
     <div class="home-page" id="homePage">
-        <div class="home-container">
-            <h1 class="home-title">Movie Seat Tracker</h1>
-            <div class="home-selectors">
-                <div class="home-selector-group">
-                    <label for="homeTheaterSelect">Theater:</label>
-                    <select id="homeTheaterSelect">
-                        <option value="">Select a theater...</option>
-                    </select>
+        <div class="home-layout">
+            <div class="home-container">
+                <h1 class="home-title">Movie Seat Tracker</h1>
+                <div class="home-selectors">
+                    <div class="home-selector-group">
+                        <label for="homeTheaterSelect">Theater:</label>
+                        <select id="homeTheaterSelect">
+                            <option value="">Select a theater...</option>
+                        </select>
+                    </div>
+                    <div class="home-selector-group">
+                        <label for="homeAuditoriumSelect">Auditorium:</label>
+                        <select id="homeAuditoriumSelect">
+                            <option value="">Select an auditorium...</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="home-selector-group">
-                    <label for="homeAuditoriumSelect">Auditorium:</label>
-                    <select id="homeAuditoriumSelect">
-                        <option value="">Select an auditorium...</option>
-                    </select>
-                </div>
+                <button class="go-button" id="goButton" disabled>Go</button>
             </div>
-            <button class="go-button" id="goButton" disabled>Go</button>
+
+            <div class="home-container">
+                <h1 class="home-title">Ticket Stubs</h1>
+                <div class="ticket-stubs-spacer" aria-hidden="true"></div>
+                <button class="go-button" id="ticketStubsButton">Go</button>
+                <div class="ticket-stubs-spacer" aria-hidden="true"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Stubs Page -->
+    <div class="seating-page" id="ticketStubsPage" style="display: none;">
+        <div class="home-icon" id="ticketStubsHomeIcon" title="Return to Home">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </div>
+        <div class="placeholder-container">
+            <h1 class="home-title">Ticket Stubs</h1>
+            <p class="placeholder-text">This page is ready, but there is nothing here yet.</p>
         </div>
     </div>
 
