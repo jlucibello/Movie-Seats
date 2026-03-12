@@ -177,6 +177,260 @@ body {
     flex: 1;
 }
 
+.ticket-stubs-container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.ticket-stubs-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1rem;
+    text-align: center;
+    margin-top: -10px;
+}
+
+.ticket-stubs-filters {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+.ticket-stubs-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ticket-stubs-filter-group label {
+    color: #d4af37;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.ticket-stubs-filter-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 2px solid #d4af37;
+    background: rgba(26, 26, 46, 0.9);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ticket-stubs-filter-group select:hover {
+    background: rgba(26, 26, 46, 1);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.ticket-stubs-filter-group select:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+
+.ticket-stubs-gallery {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+    gap: 20px;
+}
+
+.ticket-stub-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 0.95fr 16px 1.85fr;
+    gap: 18px;
+    padding: 20px;
+    background: linear-gradient(180deg, #efe6c9 0%, #e7ddbe 100%);
+    border: 3px solid #5f4b2f;
+    border-radius: 24px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+}
+
+.ticket-stub-card::before,
+.ticket-stub-card::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 40px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.ticket-stub-card::before {
+    left: -10px;
+}
+
+.ticket-stub-card::after {
+    right: -10px;
+}
+
+.ticket-stub-left,
+.ticket-stub-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.ticket-stub-divider {
+    position: relative;
+    z-index: 2;
+    border-left: 4px dashed rgba(95, 75, 47, 0.65);
+}
+
+.ticket-stub-field {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.22);
+    border: 3px solid #5f4b2f;
+    border-radius: 14px;
+}
+
+.ticket-stub-field-label {
+    padding: 8px 12px 6px;
+    background: #d7b23c;
+    color: #19160f;
+    font-size: 0.9rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.ticket-stub-field-value {
+    min-height: 44px;
+    padding: 8px 12px 10px;
+    color: #121212;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.ticket-stub-field-value.is-empty {
+    min-height: 56px;
+}
+
+.ticket-stub-field-location .ticket-stub-field-value {
+    min-height: 72px;
+    font-size: 0.9rem;
+}
+
+.ticket-stub-field-price .ticket-stub-field-value,
+.ticket-stub-top-field-price .ticket-stub-field-value {
+    min-height: 44px;
+}
+
+.ticket-stub-title-panel {
+    padding: 12px 18px;
+    background: rgba(255, 255, 255, 0.25);
+    border: 3px solid #5f4b2f;
+    border-radius: 14px;
+}
+
+.ticket-stub-title {
+    color: #121212;
+    font-size: clamp(1.2rem, 2.2vw, 2rem);
+    font-weight: 900;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.ticket-stub-top-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.85fr);
+    gap: 10px;
+}
+
+.ticket-stub-top-field .ticket-stub-field-value {
+    min-height: 50px;
+    font-size: 1.05rem;
+}
+
+.ticket-stub-top-field-auditorium .ticket-stub-field-value {
+    font-size: 0.95rem;
+}
+
+.ticket-stub-notes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 132px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 3px solid #5f4b2f;
+    border-radius: 14px;
+}
+
+.ticket-stub-notes-label {
+    color: #121212;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.ticket-stub-notes-value {
+    flex: 1;
+    color: #121212;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background-image: linear-gradient(to bottom, transparent calc(1.55em - 2px), rgba(95, 75, 47, 0.75) calc(1.55em - 2px), rgba(95, 75, 47, 0.75) 1.55em);
+    background-size: 100% 1.55em;
+    padding-top: 2px;
+}
+
+.ticket-stub-notes-value.is-empty {
+    min-height: 84px;
+}
+
+.ticket-stubs-empty {
+    grid-column: 1 / -1;
+    color: white;
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+}
+
+@media (max-width: 800px) {
+    .ticket-stubs-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .ticket-stubs-gallery {
+        grid-template-columns: 1fr;
+    }
+    
+    .ticket-stub-card {
+        grid-template-columns: 1fr;
+    }
+    
+    .ticket-stub-divider {
+        display: none;
+    }
+    
+    .ticket-stub-top-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
 .container {
     width: 100%;
     max-width: 1200px;

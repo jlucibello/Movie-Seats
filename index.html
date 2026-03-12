@@ -46,9 +46,29 @@
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
         </div>
-        <div class="placeholder-container">
+        <div class="ticket-stubs-container">
             <h1 class="home-title">Ticket Stubs</h1>
-            <p class="placeholder-text">This page is ready, but there is nothing here yet.</p>
+            <div class="ticket-stubs-filters">
+                <div class="ticket-stubs-filter-group">
+                    <label for="ticketStubTheaterFilter">Theater</label>
+                    <select id="ticketStubTheaterFilter">
+                        <option value="">All theaters</option>
+                    </select>
+                </div>
+                <div class="ticket-stubs-filter-group">
+                    <label for="ticketStubYearFilter">Year</label>
+                    <select id="ticketStubYearFilter">
+                        <option value="">All years</option>
+                    </select>
+                </div>
+                <div class="ticket-stubs-filter-group">
+                    <label for="ticketStubFormatFilter">Format</label>
+                    <select id="ticketStubFormatFilter">
+                        <option value="">All formats</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ticket-stubs-gallery" id="ticketStubsGallery"></div>
         </div>
     </div>
 

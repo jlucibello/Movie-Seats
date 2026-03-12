@@ -52,6 +52,8 @@ function parseCSVData(csvText) {
     const theaterMap = {};
     // Tracks visits that have a location but no specific auditorium / seat
     const locationOnlyVisits = {};
+    // Flat list of visits for the ticket stubs gallery
+    const ticketStubs = [];
     
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i];
@@ -98,6 +100,25 @@ function parseCSVData(csvText) {
         // If we don't have at least a location, skip this row entirely
         if (!location) continue;
         
+        const theaterMatch = theater.match(/\d+/);
+        const theaterNum = theaterMatch ? theaterMatch[0] : theater;
+        const auditoriumLabel = theater
+            ? (theaterMatch ? `Theater ${theaterNum}` : theater)
+            : '';
+        const seatLabel = row && !isNaN(seatNum) ? `${row}${seatNum}` : '';
+        
+        // Every valid row becomes a ticket stub card entry.
+        ticketStubs.push({
+            movie: movie || 'Untitled Movie',
+            watchDate,
+            location,
+            auditorium: auditoriumLabel,
+            seat: seatLabel,
+            format,
+            rating,
+            additionalNotes
+        });
+        
         // Always record the location so it appears in the theater list,
         // even if there is no auditorium / seat data.
         locations.add(location);
@@ -110,9 +131,6 @@ function parseCSVData(csvText) {
         
         // Only record auditorium and seats when we have a non-empty theater value
         if (theater) {
-            // Extract theater number
-            const theaterMatch = theater.match(/\d+/);
-            const theaterNum = theaterMatch ? theaterMatch[0] : theater;
             theaterMap[locationKey].add(theaterNum);
             
             // Only store seat visit data when we have a valid row and seat number
@@ -139,7 +157,7 @@ function parseCSVData(csvText) {
         }
     }
     
-    return { seatVisits, locations: Array.from(locations), theaterMap, locationOnlyVisits };
+    return { seatVisits, locations: Array.from(locations), theaterMap, locationOnlyVisits, ticketStubs };
 }
 
 // Get 34th St auditorium 1 layout
@@ -726,13 +744,15 @@ let currentTheater = '';
 let currentAuditorium = '';
 // Visits that belong to a location but not a specific auditorium
 let locationOnlyVisits = {};
+// Flat list of visits used by the ticket stubs gallery
+let ticketStubs = [];
 
 // Pseudo-auditorium ID used when a location has visits but no specific auditorium
 const NO_AUDITORIUM_ID = 'no-auditorium';
 
 // Build theaters object and initialize app from parsed CSV data
 function initializeFromParsedData(parsed) {
-    const { seatVisits, locations, theaterMap, locationOnlyVisits: parsedLocationOnlyVisits } = parsed;
+    const { seatVisits, locations, theaterMap, locationOnlyVisits: parsedLocationOnlyVisits, ticketStubs: parsedTicketStubs } = parsed;
     
     // Build theaters object from CSV data
     theaters = {};
@@ -790,6 +810,7 @@ function initializeFromParsedData(parsed) {
     // Store seat visit data globally for other functions
     window.seatVisits = seatVisits;
     locationOnlyVisits = parsedLocationOnlyVisits || {};
+    ticketStubs = parsedTicketStubs || [];
     
     // Current theater and auditorium (default to first location and theater)
     const firstLocation = locations[0] ? locations[0].toLowerCase().replace(/\s+/g, '-') : 'lincoln-sq';
@@ -1386,6 +1407,159 @@ function renderSeatingChart() {
     });
 }
 
+function getTicketStubYear(stub) {
+    if (!stub.watchDate) return '';
+    const match = stub.watchDate.match(/\b(19|20)\d{2}\b/);
+    return match ? match[0] : '';
+}
+
+function populateTicketStubsFilters() {
+    const theaterFilter = document.getElementById('ticketStubTheaterFilter');
+    const yearFilter = document.getElementById('ticketStubYearFilter');
+    const formatFilter = document.getElementById('ticketStubFormatFilter');
+    
+    if (!theaterFilter || !yearFilter || !formatFilter) return;
+    
+    const uniqueTheaters = Array.from(new Set(ticketStubs.map(stub => stub.location).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+    const uniqueYears = Array.from(new Set(ticketStubs.map(getTicketStubYear).filter(Boolean))).sort((a, b) => b.localeCompare(a));
+    const uniqueFormats = Array.from(new Set(ticketStubs.map(stub => stub.format).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+    
+    theaterFilter.innerHTML = '<option value="">All theaters</option>';
+    uniqueTheaters.forEach(theater => {
+        const option = document.createElement('option');
+        option.value = theater;
+        option.textContent = theater;
+        theaterFilter.appendChild(option);
+    });
+    
+    yearFilter.innerHTML = '<option value="">All years</option>';
+    uniqueYears.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearFilter.appendChild(option);
+    });
+    
+    formatFilter.innerHTML = '<option value="">All formats</option>';
+    uniqueFormats.forEach(format => {
+        const option = document.createElement('option');
+        option.value = format;
+        option.textContent = format;
+        formatFilter.appendChild(option);
+    });
+}
+
+function createTicketStubField(label, value, className = '') {
+    const field = document.createElement('div');
+    field.className = `ticket-stub-field${className ? ` ${className}` : ''}`;
+    
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'ticket-stub-field-label';
+    fieldLabel.textContent = `${label}:`;
+    
+    const fieldValue = document.createElement('div');
+    fieldValue.className = 'ticket-stub-field-value';
+    fieldValue.textContent = value || '';
+    if (!value) {
+        fieldValue.classList.add('is-empty');
+    }
+    
+    field.appendChild(fieldLabel);
+    field.appendChild(fieldValue);
+    return field;
+}
+
+// Render ticket stubs as a card gallery using the existing sheet data
+function renderTicketStubsPage() {
+    const gallery = document.getElementById('ticketStubsGallery');
+    const theaterFilter = document.getElementById('ticketStubTheaterFilter');
+    const yearFilter = document.getElementById('ticketStubYearFilter');
+    const formatFilter = document.getElementById('ticketStubFormatFilter');
+    if (!gallery || !theaterFilter || !yearFilter || !formatFilter) return;
+    
+    gallery.innerHTML = '';
+    
+    const selectedTheater = theaterFilter.value;
+    const selectedYear = yearFilter.value;
+    const selectedFormat = formatFilter.value;
+    
+    const filteredStubs = ticketStubs.filter(stub => {
+        const theaterMatches = !selectedTheater || stub.location === selectedTheater;
+        const yearMatches = !selectedYear || getTicketStubYear(stub) === selectedYear;
+        const formatMatches = !selectedFormat || stub.format === selectedFormat;
+        return theaterMatches && yearMatches && formatMatches;
+    });
+    
+    if (!ticketStubs || ticketStubs.length === 0) {
+        const emptyState = document.createElement('p');
+        emptyState.className = 'ticket-stubs-empty';
+        emptyState.textContent = 'No ticket stubs available yet.';
+        gallery.appendChild(emptyState);
+        return;
+    }
+    
+    if (filteredStubs.length === 0) {
+        const emptyState = document.createElement('p');
+        emptyState.className = 'ticket-stubs-empty';
+        emptyState.textContent = 'No ticket stubs match the selected filters.';
+        gallery.appendChild(emptyState);
+        return;
+    }
+    
+    filteredStubs.forEach(stub => {
+        const card = document.createElement('article');
+        card.className = 'ticket-stub-card';
+        
+        const leftPanel = document.createElement('div');
+        leftPanel.className = 'ticket-stub-left';
+        leftPanel.appendChild(createTicketStubField('Date', stub.watchDate));
+        leftPanel.appendChild(createTicketStubField('Format', stub.format));
+        leftPanel.appendChild(createTicketStubField('Location', stub.location, 'ticket-stub-field-location'));
+        leftPanel.appendChild(createTicketStubField('Price', '', 'ticket-stub-field-price'));
+        
+        const divider = document.createElement('div');
+        divider.className = 'ticket-stub-divider';
+        
+        const rightPanel = document.createElement('div');
+        rightPanel.className = 'ticket-stub-right';
+        
+        const titlePanel = document.createElement('div');
+        titlePanel.className = 'ticket-stub-title-panel';
+        const title = document.createElement('h2');
+        title.className = 'ticket-stub-title';
+        title.textContent = stub.movie || 'Untitled Movie';
+        titlePanel.appendChild(title);
+        
+        const topFields = document.createElement('div');
+        topFields.className = 'ticket-stub-top-fields';
+        topFields.appendChild(createTicketStubField('Auditorium', stub.auditorium, 'ticket-stub-top-field ticket-stub-top-field-auditorium'));
+        topFields.appendChild(createTicketStubField('Seat', stub.seat, 'ticket-stub-top-field ticket-stub-top-field-seat'));
+        
+        const notesPanel = document.createElement('div');
+        notesPanel.className = 'ticket-stub-notes';
+        const notesLabel = document.createElement('div');
+        notesLabel.className = 'ticket-stub-notes-label';
+        notesLabel.textContent = 'Notes:';
+        const notesValue = document.createElement('div');
+        notesValue.className = 'ticket-stub-notes-value';
+        notesValue.textContent = stub.additionalNotes || '';
+        if (!stub.additionalNotes) {
+            notesValue.classList.add('is-empty');
+        }
+        notesPanel.appendChild(notesLabel);
+        notesPanel.appendChild(notesValue);
+        
+        rightPanel.appendChild(titlePanel);
+        rightPanel.appendChild(topFields);
+        rightPanel.appendChild(notesPanel);
+        
+        card.appendChild(leftPanel);
+        card.appendChild(divider);
+        card.appendChild(rightPanel);
+        gallery.appendChild(card);
+    });
+}
+
 // Navigation functions
 function showHomePage() {
     const homePage = document.getElementById('homePage');
@@ -1418,6 +1592,7 @@ function showTicketStubsPage() {
         homePage.style.display = 'none';
         seatingPage.style.display = 'none';
         ticketStubsPage.style.display = 'flex';
+        renderTicketStubsPage();
     }
 }
 
@@ -1502,6 +1677,19 @@ function init() {
     const ticketStubsButton = document.getElementById('ticketStubsButton');
     if (ticketStubsButton) {
         ticketStubsButton.addEventListener('click', showTicketStubsPage);
+    }
+    populateTicketStubsFilters();
+    const ticketStubTheaterFilter = document.getElementById('ticketStubTheaterFilter');
+    const ticketStubYearFilter = document.getElementById('ticketStubYearFilter');
+    const ticketStubFormatFilter = document.getElementById('ticketStubFormatFilter');
+    if (ticketStubTheaterFilter) {
+        ticketStubTheaterFilter.addEventListener('change', renderTicketStubsPage);
+    }
+    if (ticketStubYearFilter) {
+        ticketStubYearFilter.addEventListener('change', renderTicketStubsPage);
+    }
+    if (ticketStubFormatFilter) {
+        ticketStubFormatFilter.addEventListener('change', renderTicketStubsPage);
     }
     
     // Set up seating page theater dropdown
